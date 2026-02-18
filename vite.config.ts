@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({`n  base: "/long-line-tracker-v2/",
+export default defineConfig(({ mode }) => ({
+  base: "/long-line-tracker-v2/",
   server: {
     host: "::",
     port: 8080,
