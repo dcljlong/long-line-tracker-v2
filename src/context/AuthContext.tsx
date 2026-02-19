@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { UserProfile, UserRole } from '@/types';
 
@@ -15,7 +15,6 @@ interface AuthContextType extends AuthState {
   signUp: (email: string, password: string, fullName: string, role?: UserRole) => Promise<void>;
   signOut: () => Promise<void>;
   clearError: () => void;
-  setDemoRole: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -60,21 +59,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Silent fail - use demo mode
       }
       
-      // Default to demo admin mode
-      setState({
-        user: {
-          id: 'demo-admin',
-          user_id: 'demo-admin',
-          email: 'admin@longline.com',
-          full_name: 'Demo Admin',
-          role: 'admin',
-          created_at: new Date().toISOString(),
-        },
-        isAuthenticated: true,
-        isAdmin: true,
-        isLoading: false,
-        error: null,
-      });
+      // No session found — remain unauthenticated
+setState({
+  user: null,
+  isAuthenticated: false,
+  isAdmin: false,
+  isLoading: false,
+  error: null,
+});
     };
 
     checkSession();
@@ -98,24 +90,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setDemoMode(false);
         }
       } else if (event === 'SIGNED_OUT') {
-        setState(prev => ({
-          ...prev,
-          user: {
-            id: 'demo-admin',
-            user_id: 'demo-admin',
-            email: 'admin@longline.com',
-            full_name: 'Demo Admin',
-            role: 'admin',
-            created_at: new Date().toISOString(),
-          },
-          isAuthenticated: true,
-          isAdmin: true,
-          isLoading: false,
-          error: null,
-        }));
-        setDemoMode(true);
-      }
-    });
+  setState({
+    user: null,
+    isAuthenticated: false,
+    isAdmin: false,
+    isLoading: false,
+    error: null,
+  });
+}
 
     return () => subscription.unsubscribe();
   }, []);
@@ -155,24 +137,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
-
-  const setDemoRole = useCallback((role: UserRole) => {
-    setState(prev => ({
-      ...prev,
-      user: {
-        id: `demo-${role}`,
-        user_id: `demo-${role}`,
-        email: role === 'admin' ? 'admin@longline.com' : 'user@longline.com',
-        full_name: role === 'admin' ? 'Demo Admin' : 'Demo User',
-        role,
-        created_at: new Date().toISOString(),
-      },
-      isAdmin: role === 'admin',
-    }));
-  }, []);
+}, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, signIn, signUp, signOut, clearError, setDemoRole }}>
+    <AuthContext.Provider value={{ ...state, signIn, signUp, signOut, clearError }}>
       {children}
     </AuthContext.Provider>
   );
@@ -183,3 +151,5 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
+
+

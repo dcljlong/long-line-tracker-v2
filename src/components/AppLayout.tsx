@@ -100,6 +100,7 @@ function AppContent() {
     }
   }, [equipment, selectEquipment, showToast]);
 
+
   if (isLoading) {
     return <div className="h-screen flex items-center justify-center text-slate-600">Loading…</div>;
   }
@@ -205,5 +206,7 @@ const AppLayout: React.FC = () => {
 };
 
 export default AppLayout;
+
+
 
 
