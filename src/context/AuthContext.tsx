@@ -1,4 +1,4 @@
-ï»¿import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { UserProfile, UserRole } from '@/types';
 
@@ -19,6 +19,17 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+async function fetchProfile(userId: string): Promise<UserProfile | null> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ?? null;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -28,120 +39,154 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error: null,
   });
 
+  // Single source of truth
+  const currentUserIdRef = useRef<string | null>(null);
+  const profileRequestRef = useRef<Promise<UserProfile | null> | null>(null);
+  const mountedRef = useRef(true);
+
+  const setUnauthed = useCallback(() => {
+    currentUserIdRef.current = null;
+    profileRequestRef.current = null;
+
+    if (!mountedRef.current) return;
+
+    setState({
+      user: null,
+      isAuthenticated: false,
+      isAdmin: false,
+      isLoading: false,
+      error: null,
+    });
+  }, []);
+
+  const setAuthed = useCallback((profile: UserProfile) => {
+    if (!mountedRef.current) return;
+
+    setState({
+      user: profile,
+      isAuthenticated: true,
+      isAdmin: profile.role === 'admin',
+      isLoading: false,
+      error: null,
+    });
+  }, []);
+
+  const loadProfile = useCallback(async (userId: string) => {
+    // Prevent duplicate loads for same user
+    if (currentUserIdRef.current === userId && profileRequestRef.current) {
+      return profileRequestRef.current;
+    }
+
+    currentUserIdRef.current = userId;
+
+    const request = (async () => {
+      try {
+        const profile = await fetchProfile(userId);
+        return profile;
+      } catch (e) {
+        console.error('Profile fetch error:', e);
+        return null;
+      }
+    })();
+
+    profileRequestRef.current = request;
+    return request;
+  }, []);
+
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
 
-    const applyUnauthed = () => {
-      if (!mounted) return;
-      setState({
-        user: null,
-        isAuthenticated: false,
-        isAdmin: false,
-        isLoading: false,
-        error: null,
-      });
-    };
-
-    const applyProfile = (profile: UserProfile) => {
-      if (!mounted) return;
-      setState({
-        user: profile,
-        isAuthenticated: true,
-        isAdmin: profile.role === 'admin',
-        isLoading: false,
-        error: null,
-      });
-    };
-
-    const loadProfile = async (userId: string) => {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (error || !profile) {
-        applyUnauthed();
+    const handleSession = async (session: any) => {
+      if (!session?.user?.id) {
+        setUnauthed();
         return;
       }
-      applyProfile(profile as UserProfile);
-    };
 
-    const init = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user?.id) {
-          await loadProfile(session.user.id);
-        } else {
-          applyUnauthed();
-        }
-      } catch {
-        applyUnauthed();
+      if (!mountedRef.current) return;
+
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+      const userId = session.user.id;
+
+      const profile = await loadProfile(userId);
+
+      if (!mountedRef.current) return;
+
+      // If user changed during async call, ignore result
+      if (currentUserIdRef.current !== userId) return;
+
+      if (profile) {
+        setAuthed(profile);
+      } else {
+        // Minimal safe fallback
+        setAuthed({
+          id: userId,
+          user_id: userId,
+          email: session.user.email || '',
+          full_name: session.user.user_metadata?.full_name || session.user.email || '',
+          role: 'standard',
+          created_at: new Date().toISOString(),
+        } as UserProfile);
       }
     };
 
-    init();
+    // INIT — single execution
+    supabase.auth.getSession().then(({ data }) => {
+      handleSession(data.session);
+    });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      try {
-        if (event === 'SIGNED_IN' && session?.user?.id) {
-          await loadProfile(session.user.id);
-        } else if (event === 'SIGNED_OUT') {
-          applyUnauthed();
-        }
-      } catch {
-        applyUnauthed();
-      }
+    // SINGLE subscription
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleSession(session);
     });
 
     return () => {
-      mounted = false;
+      mountedRef.current = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [loadProfile, setAuthed, setUnauthed]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      // auth listener will load profile + set state
-    } catch (e: any) {
-      setState(prev => ({ ...prev, isLoading: false, error: e?.message || 'Sign in failed' }));
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setState(prev => ({ ...prev, isLoading: false, error: error.message }));
     }
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string, role: UserRole = 'standard') => {
+  const signUp = useCallback(async (
+    email: string,
+    password: string,
+    fullName: string,
+    role: UserRole = 'standard'
+  ) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
-    try {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
 
-      if (data.user?.id) {
-        const { error: insErr } = await supabase.from('profiles').insert({
-          user_id: data.user.id,
-          email,
-          full_name: fullName,
-          role,
-        });
-        if (insErr) throw insErr;
-      }
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName } }
+    });
 
-      // session may not be active immediately depending on email confirmation settings
-      setState(prev => ({ ...prev, isLoading: false }));
-    } catch (e: any) {
-      setState(prev => ({ ...prev, isLoading: false, error: e?.message || 'Sign up failed' }));
+    if (error) {
+      setState(prev => ({ ...prev, isLoading: false, error: error.message }));
+      return;
+    }
+
+    if (data.user?.id) {
+      await supabase.from('profiles').upsert({
+        user_id: data.user.id,
+        email,
+        full_name: fullName,
+        role,
+      });
     }
   }, []);
 
   const signOut = useCallback(async () => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-    try {
-      await supabase.auth.signOut();
-      // auth listener will set unauth
-    } catch (e: any) {
-      setState(prev => ({ ...prev, isLoading: false, error: e?.message || 'Sign out failed' }));
-    }
+    await supabase.auth.signOut();
   }, []);
 
   const clearError = useCallback(() => {
