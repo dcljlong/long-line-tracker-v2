@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+﻿import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { UserProfile, UserRole } from '@/types';
 
@@ -28,78 +28,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error: null,
   });
 
-  // Demo mode - allow switching roles without real auth
-  const [demoMode, setDemoMode] = useState(true);
-
   useEffect(() => {
-    // Check for existing session
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          if (profile) {
-            setState({
-              user: profile,
-              isAuthenticated: true,
-              isAdmin: profile.role === 'admin',
-              isLoading: false,
-              error: null,
-            });
-            setDemoMode(false);
-            return;
-          }
-        }
-      } catch (e) {
-        // Silent fail - use demo mode
-      }
-      
-      // No session found — remain unauthenticated
-setState({
-  user: null,
-  isAuthenticated: false,
-  isAdmin: false,
-  isLoading: false,
-  error: null,
-});
+    let mounted = true;
+
+    const applyUnauthed = () => {
+      if (!mounted) return;
+      setState({
+        user: null,
+        isAuthenticated: false,
+        isAdmin: false,
+        isLoading: false,
+        error: null,
+      });
     };
 
-    checkSession();
+    const applyProfile = (profile: UserProfile) => {
+      if (!mounted) return;
+      setState({
+        user: profile,
+        isAuthenticated: true,
+        isAdmin: profile.role === 'admin',
+        isLoading: false,
+        error: null,
+      });
+    };
+
+    const loadProfile = async (userId: string) => {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error || !profile) {
+        applyUnauthed();
+        return;
+      }
+      applyProfile(profile as UserProfile);
+    };
+
+    const init = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.id) {
+          await loadProfile(session.user.id);
+        } else {
+          applyUnauthed();
+        }
+      } catch {
+        applyUnauthed();
+      }
+    };
+
+    init();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (profile) {
-          setState({
-            user: profile,
-            isAuthenticated: true,
-            isAdmin: profile.role === 'admin',
-            isLoading: false,
-            error: null,
-          });
-          setDemoMode(false);
+      try {
+        if (event === 'SIGNED_IN' && session?.user?.id) {
+          await loadProfile(session.user.id);
+        } else if (event === 'SIGNED_OUT') {
+          applyUnauthed();
         }
-      } else if (event === 'SIGNED_OUT') {
-  setState({
-    user: null,
-    isAuthenticated: false,
-    isAdmin: false,
-    isLoading: false,
-    error: null,
-  });
-}
+      } catch {
+        applyUnauthed();
+      }
+    });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
@@ -107,8 +105,9 @@ setState({
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      // auth listener will load profile + set state
     } catch (e: any) {
-      setState(prev => ({ ...prev, isLoading: false, error: e.message }));
+      setState(prev => ({ ...prev, isLoading: false, error: e?.message || 'Sign in failed' }));
     }
   }, []);
 
@@ -117,27 +116,37 @@ setState({
     try {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
-      if (data.user) {
-        await supabase.from('profiles').insert({
+
+      if (data.user?.id) {
+        const { error: insErr } = await supabase.from('profiles').insert({
           user_id: data.user.id,
           email,
           full_name: fullName,
           role,
         });
+        if (insErr) throw insErr;
       }
+
+      // session may not be active immediately depending on email confirmation settings
+      setState(prev => ({ ...prev, isLoading: false }));
     } catch (e: any) {
-      setState(prev => ({ ...prev, isLoading: false, error: e.message }));
+      setState(prev => ({ ...prev, isLoading: false, error: e?.message || 'Sign up failed' }));
     }
   }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    try {
+      await supabase.auth.signOut();
+      // auth listener will set unauth
+    } catch (e: any) {
+      setState(prev => ({ ...prev, isLoading: false, error: e?.message || 'Sign out failed' }));
+    }
   }, []);
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
-}, []);
 
   return (
     <AuthContext.Provider value={{ ...state, signIn, signUp, signOut, clearError }}>
@@ -151,5 +160,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
-
-
