@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 
 interface SidebarProps {
@@ -10,6 +10,9 @@ interface SidebarProps {
 
 export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }: SidebarProps) {
   const { stats } = useEquipment();
+
+  // GitHub Pages-safe asset path (respects Vite base URL)
+  const logoSrc = `${import.meta.env.BASE_URL}LLT-developer-logo.png`;
 
   const navItems = [
     {
@@ -41,15 +44,16 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
 
   return (
     <aside className={`${collapsed ? 'w-16' : 'w-64'} bg-[#0f1b2d] flex flex-col transition-all duration-300 flex-shrink-0`}>
-      {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-white/10">
+      {/* Logo (no orange box, doubled size) */}
+      <div className="h-20 flex items-center px-4 border-b border-white/10">
         {!collapsed && (
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#ff6b35] to-[#ff8f5e] flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.384-3.19A2.625 2.625 0 015.25 9.75V6.375a2.625 2.625 0 012.786-2.619l5.384.319M11.42 15.17l5.384 3.19A2.625 2.625 0 0017.25 16.5V6.375a2.625 2.625 0 00-2.786-2.619l-5.384.319M11.42 15.17V20.25" />
-              </svg>
-            </div>
+            <img
+              src={logoSrc}
+              alt="Long Line Tracker"
+              className="w-16 h-16 object-contain"
+              draggable={false}
+            />
             <div>
               <h1 className="text-white font-bold text-sm leading-tight">Long Line</h1>
               <p className="text-gray-400 text-[10px] font-medium tracking-wider uppercase">Tracker v2</p>
@@ -57,11 +61,12 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
           </div>
         )}
         {collapsed && (
-          <div className="w-9 h-9 mx-auto rounded-lg bg-gradient-to-br from-[#ff6b35] to-[#ff8f5e] flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.384-3.19A2.625 2.625 0 015.25 9.75V6.375a2.625 2.625 0 012.786-2.619l5.384.319M11.42 15.17l5.384 3.19A2.625 2.625 0 0017.25 16.5V6.375a2.625 2.625 0 00-2.786-2.619l-5.384.319M11.42 15.17V20.25" />
-            </svg>
-          </div>
+          <img
+            src={logoSrc}
+            alt="Long Line Tracker"
+            className="w-12 h-12 mx-auto object-contain"
+            draggable={false}
+          />
         )}
       </div>
 
