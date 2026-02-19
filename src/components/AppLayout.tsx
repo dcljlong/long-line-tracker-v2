@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+﻿import React, { useState, useCallback } from 'react';
 import { AuthProvider } from '@/context/AuthContext';
 import { EquipmentProvider, useEquipment } from '@/context/EquipmentContext';
 import { useAuth } from '@/context/AuthContext';
@@ -26,6 +26,7 @@ function AppContent() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   const { selectedEquipment, selectEquipment, refreshData, equipment } = useEquipment();
+  const { isAuthenticated, isLoading } = useAuth();
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, type });
@@ -80,7 +81,7 @@ function AppContent() {
     refreshData();
   }, [showToast, refreshData]);
 
-  // QR scan handler — look up equipment by qr_code or asset_id and navigate
+  // QR scan handler â€” look up equipment by qr_code or asset_id and navigate
   const handleScanResult = useCallback((qrCode: string) => {
     const normalized = qrCode.trim();
     const match = equipment.find(
@@ -98,6 +99,18 @@ function AppContent() {
       showToast(`No equipment found for QR code: ${normalized}`, 'error');
     }
   }, [equipment, selectEquipment, showToast]);
+
+  if (isLoading) {
+    return <div className="h-screen flex items-center justify-center text-slate-600">Loading…</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#f8f9fb]">
+        <AuthModal onClose={() => {}} />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex bg-[#f8f9fb] overflow-hidden">
@@ -192,3 +205,5 @@ const AppLayout: React.FC = () => {
 };
 
 export default AppLayout;
+
+
