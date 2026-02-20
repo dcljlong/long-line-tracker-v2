@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 import type { Equipment, EquipmentCondition } from '@/types';
 import { CATEGORIES } from '@/types';
@@ -15,7 +15,15 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
   const { createEquipment, updateEquipment } = useEquipment();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const isEdit = !!equipment;
+
+  // NOTE:
+  // The DB schema (per your successful Node insert) includes:
+  // - test_tag_done_date
+  // - test_tag_next_due_date
+  // It does NOT appear to include: notes, tag_threshold_days, or test_tag_next_due
+  // We keep notes/threshold in UI for now but DO NOT send them to Supabase.
 
   const [form, setForm] = useState({
     asset_id: '',
@@ -35,10 +43,11 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
         name: equipment.name,
         category: equipment.category,
         condition: equipment.condition,
-        notes: equipment.notes || '',
-        test_tag_done_date: equipment.test_tag_done_date || '',
-        test_tag_next_due: equipment.test_tag_next_due || '',
-        tag_threshold_days: equipment.tag_threshold_days,
+        notes: (equipment as any).notes || '',
+        test_tag_done_date: (equipment as any).test_tag_done_date || '',
+        // handle either name if types differ across versions
+        test_tag_next_due: (equipment as any).test_tag_next_due_date || (equipment as any).test_tag_next_due || '',
+        tag_threshold_days: (equipment as any).tag_threshold_days ?? 30,
       });
     }
   }, [equipment]);
@@ -54,30 +63,47 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
     if (!validate()) return;
 
     setIsSubmitting(true);
     try {
       if (isEdit && equipment) {
-        const success = await updateEquipment(equipment.id, {
-          ...form,
+        // Explicit payload: only send real DB columns
+        const payload: any = {
+          asset_id: form.asset_id,
+          name: form.name,
+          category: form.category,
+          condition: form.condition,
           test_tag_done_date: form.test_tag_done_date || null,
-          test_tag_next_due: form.test_tag_next_due || null,
-        });
+          test_tag_next_due_date: form.test_tag_next_due || null,
+        };
+
+        const success = await updateEquipment(equipment.id, payload);
         if (success) onSuccess();
+        else setSubmitError('Update failed. Check console/network and try again.');
       } else {
         const qrCode = `QR-${form.asset_id}`;
-        const result = await createEquipment({
-          ...form,
+
+        // Explicit payload: only send real DB columns
+        const payload: any = {
+          asset_id: form.asset_id,
+          name: form.name,
+          category: form.category,
+          condition: form.condition,
           qr_code: qrCode,
           test_tag_done_date: form.test_tag_done_date || null,
-          test_tag_next_due: form.test_tag_next_due || null,
+          test_tag_next_due_date: form.test_tag_next_due || null,
           current_status: 'Available',
-        });
+        };
+
+        const result = await createEquipment(payload);
         if (result) onSuccess();
+        else setSubmitError('Create failed. Check console/network and try again.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Equipment form error:', err);
+      setSubmitError(err?.message || 'Unexpected error creating/updating equipment.');
     } finally {
       setIsSubmitting(false);
     }
@@ -98,6 +124,12 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {submitError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {submitError}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -150,7 +182,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {CONDITIONS.map(cond => (
                 <button
                   key={cond}
@@ -169,7 +201,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notes (local only for now)</label>
             <textarea
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
@@ -201,9 +233,10 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
                 />
               </div>
             </div>
+
             <div className="mt-3">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Due Soon Threshold (days)
+                Due Soon Threshold (days) (local only for now)
               </label>
               <input
                 type="number"
