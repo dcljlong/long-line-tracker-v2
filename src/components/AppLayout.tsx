@@ -13,10 +13,17 @@ import ImportModal from '@/components/ImportModal';
 import AuthModal from '@/components/AuthModal';
 import Toast from '@/components/Toast';
 import type { MovementEventType } from '@/types';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
+
+  // Desktop collapse behaviour
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Mobile drawer behaviour
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   const [initialFilter, setInitialFilter] = useState<string | undefined>();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
@@ -36,11 +43,13 @@ function AppContent() {
     setCurrentView(view);
     if (filter) setInitialFilter(filter);
     else setInitialFilter(undefined);
+    setMobileSidebarOpen(false); // close drawer on mobile after navigating
   }, []);
 
   const handleSelectEquipment = useCallback((id: string) => {
     selectEquipment(id);
     setCurrentView('detail');
+    setMobileSidebarOpen(false);
   }, [selectEquipment]);
 
   const handleBackToList = useCallback(() => {
@@ -81,14 +90,13 @@ function AppContent() {
     refreshData();
   }, [showToast, refreshData]);
 
-  // QR scan handler â€” look up equipment by qr_code or asset_id and navigate
+  // QR scan handler — look up equipment by qr_code or asset_id and navigate
   const handleScanResult = useCallback((qrCode: string) => {
     const normalized = qrCode.trim();
     const match = equipment.find(
       eq =>
         eq.qr_code.toLowerCase() === normalized.toLowerCase() ||
         eq.asset_id.toLowerCase() === normalized.toLowerCase() ||
-        // Support URL-style QR codes that end with the asset id
         normalized.toLowerCase().includes(eq.qr_code.toLowerCase())
     );
     if (match) {
@@ -99,7 +107,6 @@ function AppContent() {
       showToast(`No equipment found for QR code: ${normalized}`, 'error');
     }
   }, [equipment, selectEquipment, showToast]);
-
 
   if (isLoading) {
     return <div className="h-screen flex items-center justify-center text-slate-600">Loading…</div>;
@@ -115,21 +122,52 @@ function AppContent() {
 
   return (
     <div className="h-screen flex bg-[#f8f9fb] overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar
-        currentView={currentView}
-        onNavigate={handleNavigate}
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-      />
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex">
+        <Sidebar
+          currentView={currentView}
+          onNavigate={handleNavigate}
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header
-          onOpenAuth={() => setShowAuthModal(true)}
-          currentView={currentView}
-          onScanResult={handleScanResult}
-        />
+        {/* Header + Mobile Drawer Trigger */}
+        <div className="relative">
+          {/* Mobile Hamburger + Drawer */}
+          <div className="md:hidden absolute left-2 top-2 z-50">
+            <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Open menu"
+                  className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white/90 backdrop-blur px-3 py-2 shadow-sm"
+                >
+                  <svg className="h-5 w-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              </SheetTrigger>
+
+              <SheetContent side="left" className="p-0 w-[82vw] max-w-[340px]">
+                <Sidebar
+                  currentView={currentView}
+                  onNavigate={handleNavigate}
+                  collapsed={false}
+                  onToggle={() => {}}
+                />
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          <Header
+            onOpenAuth={() => setShowAuthModal(true)}
+            currentView={currentView}
+            onScanResult={handleScanResult}
+          />
+        </div>
 
         <main className="flex-1 overflow-hidden">
           {currentView === 'dashboard' && (
@@ -206,7 +244,3 @@ const AppLayout: React.FC = () => {
 };
 
 export default AppLayout;
-
-
-
-
