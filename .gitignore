@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 *.bak
+
+# local backups
+**/*.bak_*
+index.html.bak_*
+
