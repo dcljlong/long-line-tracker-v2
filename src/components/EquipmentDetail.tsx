@@ -26,89 +26,109 @@ export default function EquipmentDetail({ onBack, onEdit, onMovement }: Equipmen
   const status = computeStatus(eq);
   const tagState = computeTagState(eq);
 
-  const daysUntilDue = eq.test_tag_next_due
-    ? Math.ceil((new Date(eq.test_tag_next_due).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+  // Schema-safe next due (some code uses test_tag_next_due_date)
+  const nextDue: string | null =
+    (eq as any).test_tag_next_due_date ??
+    (eq as any).test_tag_next_due ??
+    null;
+
+  const daysUntilDue = nextDue
+    ? Math.ceil((new Date(nextDue).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
-  // Build a QR code value — in production this would be a URL to the app
   const qrValue = eq.qr_code;
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrValue)}&color=1e3a5f&bgcolor=ffffff&margin=8`;
   const qrDownloadUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(qrValue)}&color=1e3a5f&bgcolor=ffffff&margin=16`;
 
+  const canShowPrimaryAction = isAdmin && (status === 'Available' || status === 'In Use' || status === 'Overdue');
+  const isCheckout = status === 'Available';
+  const primaryLabel = isCheckout ? 'Check Out' : 'Return';
+
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto overflow-x-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {/* Left */}
+          <div className="flex items-start gap-3 sm:gap-4 min-w-0">
             <button
               onClick={onBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-gray-600 shrink-0"
+              aria-label="Back"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
               </svg>
             </button>
-            <div>
-              <div className="flex items-center gap-2">
+
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{eq.asset_id}</span>
                 <StatusBadge status={status} />
                 <TagBadge state={tagState} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mt-1">{eq.name}</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mt-1 truncate">{eq.name}</h2>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowQR(!showQR)}
-              className={`p-2.5 border rounded-lg transition-colors ${showQR ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
-              title="Show QR Code"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
-              </svg>
-            </button>
-            {isAdmin && (
-              <>
+          {/* Right actions (mobile stacks, no horizontal scroll) */}
+          <div className="w-full sm:w-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
+            {/* Primary action (mobile full-width) */}
+            {canShowPrimaryAction && (
+              <button
+                onClick={() => onMovement(isCheckout ? 'check_out' : 'return')}
+                className={`w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                  isCheckout
+                    ? 'bg-[#1e3a5f] text-white hover:bg-[#2d5a8e]'
+                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                }`}
+              >
+                {isCheckout ? (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" />
+                  </svg>
+                )}
+                {primaryLabel}
+              </button>
+            )}
+
+            {/* Secondary actions row */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                onClick={() => setShowQR(!showQR)}
+                className={`flex-1 sm:flex-none p-2.5 border rounded-lg transition-colors ${
+                  showQR ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+                title="Show QR Code"
+                aria-label="Show QR Code"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
+                </svg>
+              </button>
+
+              {isAdmin && (
                 <button
                   onClick={onEdit}
-                  className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  className="flex-1 sm:flex-none px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                   </svg>
                   Edit
                 </button>
-                {status === 'Available' ? (
-                  <button
-                    onClick={() => onMovement('check_out')}
-                    className="px-4 py-2.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                    </svg>
-                    Check Out
-                  </button>
-                ) : (status === 'In Use' || status === 'Overdue') ? (
-                  <button
-                    onClick={() => onMovement('return')}
-                    className="px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" />
-                    </svg>
-                    Return
-                  </button>
-                ) : null}
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-6">
         {/* QR Code Panel */}
         {showQR && (
           <div className="bg-white rounded-xl border border-gray-100 p-6">
@@ -242,8 +262,8 @@ export default function EquipmentDetail({ onBack, onEdit, onMovement }: Equipmen
                 <div>
                   <dt className="text-xs text-gray-400 uppercase tracking-wider">Next Due</dt>
                   <dd className="text-sm text-gray-900 mt-0.5">
-                    {eq.test_tag_next_due
-                      ? new Date(eq.test_tag_next_due).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+                    {nextDue
+                      ? new Date(nextDue).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
                       : 'Not scheduled'}
                   </dd>
                 </div>
@@ -296,7 +316,7 @@ export default function EquipmentDetail({ onBack, onEdit, onMovement }: Equipmen
                 <h3 className="font-semibold text-gray-900">Movement History</h3>
                 <span className="text-xs text-gray-400">{selectedMovements.length} entries</span>
               </div>
-              
+
               {selectedMovements.length === 0 ? (
                 <div className="p-8 text-center text-gray-400">
                   <svg className="w-12 h-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
@@ -307,13 +327,11 @@ export default function EquipmentDetail({ onBack, onEdit, onMovement }: Equipmen
               ) : (
                 <div className="p-5">
                   <div className="relative">
-                    {/* Timeline line */}
                     <div className="absolute left-4 top-0 bottom-0 w-px bg-gray-200" />
-                    
+
                     <div className="space-y-6">
                       {selectedMovements.map((m) => (
                         <div key={m.id} className="relative pl-10">
-                          {/* Timeline dot */}
                           <div className={`absolute left-2 top-1 w-4 h-4 rounded-full border-2 border-white ${
                             m.event_type === 'check_out' ? 'bg-blue-500' : 'bg-emerald-500'
                           }`} />
@@ -325,15 +343,6 @@ export default function EquipmentDetail({ onBack, onEdit, onMovement }: Equipmen
                                   ? 'bg-blue-100 text-blue-700'
                                   : 'bg-emerald-100 text-emerald-700'
                               }`}>
-                                {m.event_type === 'check_out' ? (
-                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                                  </svg>
-                                ) : (
-                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" />
-                                  </svg>
-                                )}
                                 {m.event_type === 'check_out' ? 'Check Out' : 'Return'}
                               </span>
                               <span className="text-xs text-gray-400">
@@ -380,18 +389,12 @@ export default function EquipmentDetail({ onBack, onEdit, onMovement }: Equipmen
                             {(m.pickup_photo_url || m.return_photo_url) && (
                               <div className="flex gap-2 mt-2 pt-2 border-t border-gray-200">
                                 {m.pickup_photo_url && (
-                                  <a href={m.pickup_photo_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v12a2.25 2.25 0 002.25 2.25z" />
-                                    </svg>
+                                  <a href={m.pickup_photo_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
                                     Pickup Photo
                                   </a>
                                 )}
                                 {m.return_photo_url && (
-                                  <a href={m.return_photo_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v12a2.25 2.25 0 002.25 2.25z" />
-                                    </svg>
+                                  <a href={m.return_photo_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
                                     Return Photo
                                   </a>
                                 )}
@@ -405,11 +408,13 @@ export default function EquipmentDetail({ onBack, onEdit, onMovement }: Equipmen
                         </div>
                       ))}
                     </div>
+
                   </div>
                 </div>
               )}
             </div>
           </div>
+
         </div>
       </div>
     </div>
