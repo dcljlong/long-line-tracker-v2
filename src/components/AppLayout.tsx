@@ -102,17 +102,17 @@ function AppContent() {
       showToast("Navigated to  ()", 'success');
       setMobileSidebarOpen(false);
     } else {
-      showToast(No equipment found for QR code: , 'error');
+      showToast(`No equipment found for QR code: ${normalized}`, 'error');
     }
   }, [equipment, selectEquipment, showToast]);
 
   if (isLoading) {
-    return <div className={min-h-screen flex items-center justify-center text-slate-300 }>Loading…</div>;
+    return <div className={`min-h-screen flex items-center justify-center text-slate-300 ${UI.shell}`}>Loading…</div>;
   }
 
   if (!isAuthenticated) {
     return (
-      <div className={min-h-screen flex items-center justify-center }>
+      <div className={`min-h-screen flex items-center justify-center ${UI.shell}`}>
         <Suspense fallback={null}>
           <AuthModal onClose={() => {}} />
         </Suspense>
@@ -209,4 +209,11 @@ export default function AppLayout() {
     </AuthProvider>
   );
 }
+
+
+
+
+
+
+
 
