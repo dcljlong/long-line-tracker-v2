@@ -1,15 +1,12 @@
 ﻿import React, { useState, useRef } from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 import { UI } from '@/lib/ui';
-
 interface ImportModalProps {
-import { UI } from '@/lib/ui';
   onClose: () => void;
   onSuccess: () => void;
 }
 
 interface ImportRow {
-import { UI } from '@/lib/ui';
   asset_id: string;
   name: string;
   category: string;
@@ -24,22 +21,16 @@ import { UI } from '@/lib/ui';
 }
 
 export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
-import { UI } from '@/lib/ui';
   const { createEquipment, equipment } = useEquipment();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<'upload' | 'preview' | 'importing' | 'done'>('upload');
-import { UI } from '@/lib/ui';
   const [rows, setRows] = useState<ImportRow[]>([]);
-import { UI } from '@/lib/ui';
   const [importProgress, setImportProgress] = useState(0);
-import { UI } from '@/lib/ui';
   const [importResults, setImportResults] = useState({ success: 0, failed: 0 });
-import { UI } from '@/lib/ui';
 
   const existingAssetIds = new Set(equipment.map(e => e.asset_id.toLowerCase()));
 
   const parseCSV = (text: string): ImportRow[] => {
-import { UI } from '@/lib/ui';
     const lines = text.trim().split('\n');
     if (lines.length < 2) return [];
 
@@ -91,12 +82,10 @@ import { UI } from '@/lib/ui';
   };
 
   const handleImport = async () => {
-import { UI } from '@/lib/ui';
     const validRows = rows.filter(r => r.isValid);
     if (validRows.length === 0) return;
 
     setStep('importing');
-import { UI } from '@/lib/ui';
     let success = 0;
     let failed = 0;
 
@@ -121,11 +110,9 @@ import { UI } from '@/lib/ui';
         failed++;
       }
       setImportProgress(((i + 1) / validRows.length) * 100);
-import { UI } from '@/lib/ui';
     }
 
     setImportResults({ success, failed });
-import { UI } from '@/lib/ui';
     setStep('done');
   };
 
@@ -137,7 +124,6 @@ import { UI } from '@/lib/ui';
       <div className={`${UI.card} w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col`}>
         <div className={`px-6 py-4 border-b ${UI.divider} flex items-center justify-between`}>
           <h3 className="text-lg font-bold text-white">Import Equipment</h3>
-import { UI } from '@/lib/ui';
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
             <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -239,23 +225,19 @@ import { UI } from '@/lib/ui';
           )}
 
           {step === 'importing' && (
-import { UI } from '@/lib/ui';
             <div className="text-center py-12">
               <svg className="animate-spin w-12 h-12 text- mx-auto mb-4" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
               <p className="text-sm font-medium text-white mb-2">Importing equipment...</p>
-import { UI } from '@/lib/ui';
               <div className="w-64 mx-auto h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg- rounded-full transition-all"
                   style={{ width: `${importProgress}%` }}
-import { UI } from '@/lib/ui';
                 />
               </div>
               <p className="text-xs text-slate-400 mt-2">{Math.round(importProgress)}%</p>
-import { UI } from '@/lib/ui';
             </div>
           )}
 
@@ -267,12 +249,9 @@ import { UI } from '@/lib/ui';
                 </svg>
               </div>
               <p className="text-lg font-bold text-white mb-1">Import Complete</p>
-import { UI } from '@/lib/ui';
               <p className="text-sm text-slate-400">
                 {importResults.success} imported successfully
-import { UI } from '@/lib/ui';
                 {importResults.failed > 0 && `, ${importResults.failed} failed`}
-import { UI } from '@/lib/ui';
               </p>
             </div>
           )}
@@ -291,12 +270,10 @@ import { UI } from '@/lib/ui';
               </button>
               <button
                 onClick={handleImport}
-import { UI } from '@/lib/ui';
                 disabled={validCount === 0}
                 className="px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500 disabled:opacity-50"
               >
                 Import {validCount} Items
-import { UI } from '@/lib/ui';
               </button>
             </>
           )}
@@ -313,5 +290,7 @@ import { UI } from '@/lib/ui';
     </div>
   );
 }
+
+
 
 
