@@ -4,14 +4,13 @@ import { useEquipment } from '@/context/EquipmentContext';
 interface SidebarProps {
   currentView: string;
   onNavigate: (view: string) => void;
-  collapsed: boolean;
+  collapsed: boolean; // true = compact (w-16), false = expanded (w-64)
   onToggle: () => void;
 }
 
 export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }: SidebarProps) {
   const { stats } = useEquipment();
 
-  // GitHub Pages-safe asset path (respects Vite base URL)
   const logoSrc = `${import.meta.env.BASE_URL}LLT-developer-logo.png`;
 
   const navItems = [
@@ -27,12 +26,12 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
     {
       id: 'equipment',
       label: 'Equipment',
+      badge: stats.total,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.384-3.19A2.625 2.625 0 015.25 9.75V6.375a2.625 2.625 0 012.786-2.619l5.384.319M11.42 15.17l5.384 3.19A2.625 2.625 0 0017.25 16.5V6.375a2.625 2.625 0 00-2.786-2.619l-5.384.319M11.42 15.17V20.25" />
         </svg>
       ),
-      badge: stats.total,
     },
   ];
 
@@ -42,52 +41,44 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
     { label: 'Due Soon', count: stats.dueSoon, color: 'bg-amber-500' },
   ];
 
+  const isActive = (id: string) => currentView === id || (id === 'equipment' && currentView === 'detail');
+
   return (
-    <aside className={`${collapsed ? 'w-16' : 'w-64'} bg-[#0f1b2d] flex flex-col transition-all duration-300 flex-shrink-0`}>
-      {/* Logo (no orange box, doubled size) */}
-      <div className="h-20 flex items-center px-4 border-b border-white/10">
+    <aside
+      className={`${collapsed ? 'w-16' : 'w-64'} h-screen flex flex-col transition-[width] duration-300
+        bg-slate-900/35 backdrop-blur-xl ring-1 ring-white/10`}
+    >
+      {/* Brand */}
+      <div className="h-16 flex items-center gap-3 px-4 border-b border-white/10">
+        <img src={logoSrc} alt="Long Line Tracker" className="w-10 h-10 object-contain" draggable={false} />
         {!collapsed && (
-          <div className="flex items-center gap-3">
-            <img
-              src={logoSrc}
-              alt="Long Line Tracker"
-              className="w-16 h-16 object-contain"
-              draggable={false}
-            />
-            <div>
-              <h1 className="text-white font-bold text-sm leading-tight">Long Line</h1>
-              <p className="text-gray-400 text-[10px] font-medium tracking-wider uppercase">Tracker v2</p>
-            </div>
+          <div className="min-w-0">
+            <div className="text-white font-semibold leading-tight">Long Line</div>
+            <div className="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Tracker v2</div>
           </div>
-        )}
-        {collapsed && (
-          <img
-            src={logoSrc}
-            alt="Long Line Tracker"
-            className="w-12 h-12 mx-auto object-contain"
-            draggable={false}
-          />
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+      {/* Nav */}
+      <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
         {navItems.map(item => (
           <button
             key={item.id}
             onClick={() => onNavigate(item.id)}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-              currentView === item.id || (item.id === 'equipment' && currentView === 'detail')
-                ? 'bg-white/10 text-white'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            title={collapsed ? item.label : undefined}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              isActive(item.id)
+                ? 'bg-amber-500/15 text-amber-200 ring-1 ring-amber-400/15'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
             }`}
           >
-            {item.icon}
+            <span className="shrink-0">{item.icon}</span>
+
             {!collapsed && (
               <>
-                <span className="flex-1 text-left">{item.label}</span>
-                {item.badge !== undefined && (
-                  <span className="bg-white/10 text-gray-300 text-xs px-2 py-0.5 rounded-full">
+                <span className="flex-1 text-left truncate">{item.label}</span>
+                {typeof item.badge === 'number' && (
+                  <span className="bg-white/10 text-slate-200 text-xs px-2 py-0.5 rounded-full">
                     {item.badge}
                   </span>
                 )}
@@ -97,15 +88,15 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
         ))}
       </nav>
 
-      {/* Alert Summary */}
+      {/* Alerts (expanded only) */}
       {!collapsed && (
         <div className="px-3 pb-4">
-          <div className="bg-white/5 rounded-lg p-3">
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Alerts</p>
+          <div className="bg-white/5 rounded-xl p-3 ring-1 ring-white/10">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Alerts</p>
             <div className="space-y-2">
               {alertItems.map(item => (
                 <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">{item.label}</span>
+                  <span className="text-xs text-slate-300">{item.label}</span>
                   <span className={`${item.color} text-white text-xs font-bold px-1.5 py-0.5 rounded`}>
                     {item.count}
                   </span>
@@ -116,10 +107,11 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
         </div>
       )}
 
-      {/* Collapse Toggle */}
+      {/* Collapse */}
       <button
         onClick={onToggle}
-        className="h-12 flex items-center justify-center border-t border-white/10 text-gray-400 hover:text-white transition-colors"
+        className="h-12 flex items-center justify-center border-t border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+        title={collapsed ? 'Expand' : 'Collapse'}
       >
         <svg className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
