@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 
 interface HeaderProps {
@@ -25,28 +25,35 @@ export default function Header({ onOpenAuth, currentView, onScanResult }: Header
 
   return (
     <>
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+      {/* Mobile-safe header:
+          - pl-14 reserves space for the mobile hamburger that AppLayout overlays top-left
+          - flex-wrap prevents overflow off the right edge
+          - sm/md breakpoints restore the desktop layout
+      */}
+      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between pl-14 pr-3 sm:px-6 flex-shrink-0 w-full max-w-full">
+        <div className="flex items-center gap-3 min-w-0">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
             {viewTitles[currentView] || 'Dashboard'}
           </h2>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Scan QR Button */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end max-w-full">
+          {/* Scan QR Button (icon-only on mobile) */}
           <button
             onClick={() => setShowScanner(true)}
-            className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#ff6b35] to-[#ff8f5e] text-white rounded-lg text-xs font-semibold hover:from-[#e85d2c] hover:to-[#e87d4e] transition-all shadow-sm"
+            className="flex items-center gap-2 px-2.5 sm:px-3 py-2 bg-gradient-to-r from-[#ff6b35] to-[#ff8f5e] text-white rounded-lg text-xs font-semibold hover:from-[#e85d2c] hover:to-[#e87d4e] transition-all shadow-sm"
+            aria-label="Scan QR"
+            title="Scan QR"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
             </svg>
-            Scan QR
+            <span className="hidden sm:inline">Scan QR</span>
           </button>
 
-          {/* Role Switcher (Demo Mode) */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+          {/* Role Switcher (hide on mobile to prevent overflow) */}
+          <div className="hidden sm:flex items-center bg-gray-100 rounded-lg p-0.5">
             <button
               onClick={() => setDemoRole('admin')}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
@@ -70,7 +77,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult }: Header
           </div>
 
           {/* Notifications */}
-          <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Notifications">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
             </svg>
@@ -82,6 +89,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult }: Header
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="User menu"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8e] flex items-center justify-center text-white text-sm font-semibold">
                 {user?.full_name?.charAt(0) || 'U'}
@@ -155,19 +163,13 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
   const [manualCode, setManualCode] = useState('');
   const [detectedCode, setDetectedCode] = useState('');
 
-  // Cleanup camera on unmount
   useEffect(() => {
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(t => t.stop());
-      }
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
+      if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
   }, []);
 
-  // Start camera
   useEffect(() => {
     let cancelled = false;
 
@@ -199,7 +201,6 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
     };
 
     const startDetection = () => {
-      // Try native BarcodeDetector first (Chrome 83+, Edge, Android)
       if ('BarcodeDetector' in window) {
         const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
         const scan = async () => {
@@ -212,34 +213,25 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
             if (barcodes.length > 0 && !cancelled) {
               const code = barcodes[0].rawValue;
               setDetectedCode(code);
-              // Small delay so user sees the detection
               setTimeout(() => { if (!cancelled) onResult(code); }, 400);
               return;
             }
-          } catch { /* ignore detection errors */ }
+          } catch { /* ignore */ }
           animFrameRef.current = requestAnimationFrame(scan);
         };
         animFrameRef.current = requestAnimationFrame(scan);
       } else {
-        // Fallback: use canvas-based frame grabbing + simple pattern detection
-        // Since we can't do full QR decode without a library, show manual entry
-        // but keep the camera view as a visual aid
         setStatus('manual');
       }
     };
 
-    if (status === 'requesting') {
-      startCamera();
-    }
-
+    if (status === 'requesting') startCamera();
     return () => { cancelled = true; };
   }, [onResult, status]);
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (manualCode.trim()) {
-      onResult(manualCode.trim());
-    }
+    if (manualCode.trim()) onResult(manualCode.trim());
   };
 
   const handleSwitchToManual = () => {
@@ -254,7 +246,6 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] p-4">
       <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-        {/* Header */}
         <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8e]">
           <div className="flex items-center gap-3 text-white">
             <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
@@ -267,38 +258,27 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
               <p className="text-[11px] text-white/70">Point camera at equipment QR code</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white" aria-label="Close scanner">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Camera View */}
         <div className="relative bg-black">
           {(status === 'requesting' || status === 'scanning') && (
             <div className="relative aspect-[4/3]">
-              <video
-                ref={videoRef}
-                className="w-full h-full object-cover"
-                playsInline
-                muted
-                autoPlay
-              />
+              <video ref={videoRef} className="w-full h-full object-cover" playsInline muted autoPlay />
               <canvas ref={canvasRef} className="hidden" />
-              {/* Scanning overlay */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-52 h-52 relative">
-                  {/* Corner brackets */}
                   <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-[#ff6b35] rounded-tl-lg" style={{ borderWidth: '3px 0 0 3px' }} />
                   <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-[#ff6b35] rounded-tr-lg" style={{ borderWidth: '3px 3px 0 0' }} />
                   <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-[#ff6b35] rounded-bl-lg" style={{ borderWidth: '0 0 3px 3px' }} />
                   <div className="absolute bottom-0 right-0 w-8 h-8 border-b-3 border-r-3 border-[#ff6b35] rounded-br-lg" style={{ borderWidth: '0 3px 3px 0' }} />
-                  {/* Scanning line animation */}
                   <div className="absolute left-2 right-2 h-0.5 bg-[#ff6b35] animate-scan-line" />
                 </div>
               </div>
-              {/* Status indicator */}
               <div className="absolute bottom-3 left-0 right-0 text-center">
                 {status === 'requesting' && (
                   <span className="inline-flex items-center gap-2 bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
@@ -342,7 +322,6 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
 
           {status === 'manual' && !detectedCode && (
             <div className="aspect-[4/3] flex flex-col items-center justify-center bg-gray-50 p-6 relative">
-              {/* If camera is running behind, show it */}
               {streamRef.current && (
                 <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover opacity-10" playsInline muted autoPlay />
               )}
@@ -353,14 +332,13 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
                   </svg>
                 </div>
                 <p className="text-sm font-medium text-gray-900 mb-1">QR Detection Not Supported</p>
-                <p className="text-xs text-gray-500 mb-1">Your browser doesn't support native QR scanning.</p>
+                <p className="text-xs text-gray-500 mb-1">Your browser doesn&apos;t support native QR scanning.</p>
                 <p className="text-xs text-gray-400">Enter the QR code manually below.</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Manual Entry / Actions */}
         <div className="p-4 space-y-3 border-t border-gray-100">
           <form onSubmit={handleManualSubmit} className="flex gap-2">
             <input
@@ -384,6 +362,7 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
               <button
                 onClick={handleSwitchToManual}
                 className="flex-1 text-center px-3 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                type="button"
               >
                 Enter code manually instead
               </button>
@@ -391,6 +370,7 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
             <button
               onClick={onClose}
               className="flex-1 text-center px-3 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              type="button"
             >
               Cancel
             </button>
