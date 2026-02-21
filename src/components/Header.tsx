@@ -5,9 +5,10 @@ interface HeaderProps {
   onOpenAuth: () => void;
   currentView: string;
   onScanResult?: (qrCode: string) => void;
+  onToggleSidebar?: () => void;
 }
 
-export default function Header({ onOpenAuth, currentView, onScanResult }: HeaderProps) {
+export default function Header({ onOpenAuth, currentView, onScanResult, onToggleSidebar }: HeaderProps) {
   const { user, isAdmin, setDemoRole, signOut } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
@@ -25,118 +26,126 @@ export default function Header({ onOpenAuth, currentView, onScanResult }: Header
 
   return (
     <>
-      {/* Mobile-safe header:
-          - pl-14 reserves space for the mobile hamburger that AppLayout overlays top-left
-          - flex-wrap prevents overflow off the right edge
-          - sm/md breakpoints restore the desktop layout
-      */}
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between pl-14 pr-3 sm:px-6 flex-shrink-0 w-full max-w-full">
-        <div className="flex items-center gap-3 min-w-0">
-          <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-            {viewTitles[currentView] || 'Dashboard'}
-          </h2>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end max-w-full">
-          {/* Scan QR Button (icon-only on mobile) */}
-          <button
-            onClick={() => setShowScanner(true)}
-            className="flex items-center gap-2 px-2.5 sm:px-3 py-2 bg-gradient-to-r from-[#ff6b35] to-[#ff8f5e] text-white rounded-lg text-xs font-semibold hover:from-[#e85d2c] hover:to-[#e87d4e] transition-all shadow-sm"
-            aria-label="Scan QR"
-            title="Scan QR"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
-            </svg>
-            <span className="hidden sm:inline">Scan QR</span>
-          </button>
-
-          {/* Role Switcher (hide on mobile to prevent overflow) */}
-          <div className="hidden sm:flex items-center bg-gray-100 rounded-lg p-0.5">
+      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          {/* Left: Hamburger + Title */}
+          <div className="flex items-center gap-3 min-w-0">
             <button
-              onClick={() => setDemoRole('admin')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                isAdmin
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              type="button"
+              aria-label="Open menu"
+              onClick={() => onToggleSidebar?.()}
+              className="md:hidden inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm"
             >
-              Admin
-            </button>
-            <button
-              onClick={() => setDemoRole('standard')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                !isAdmin
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Standard
-            </button>
-          </div>
-
-          {/* Notifications */}
-          <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Notifications">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-            </svg>
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-          </button>
-
-          {/* User Menu */}
-          <div className="relative">
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-              aria-label="User menu"
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8e] flex items-center justify-center text-white text-sm font-semibold">
-                {user?.full_name?.charAt(0) || 'U'}
-              </div>
-              <div className="hidden md:block text-left">
-                <p className="text-sm font-medium text-gray-900">{user?.full_name || 'User'}</p>
-                <p className="text-xs text-gray-500">{isAdmin ? 'Administrator' : 'Standard User'}</p>
-              </div>
-              <svg className="w-4 h-4 text-gray-400 hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg className="h-5 w-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
 
-            {showUserMenu && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-                <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
-                    <span className={`inline-flex mt-1 items-center px-2 py-0.5 rounded text-xs font-medium ${
-                      isAdmin ? 'bg-purple-50 text-purple-700' : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      {isAdmin ? 'Admin' : 'Standard User'}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => { onOpenAuth(); setShowUserMenu(false); }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                    </svg>
-                    Sign In / Sign Up
-                  </button>
-                  <button
-                    onClick={() => { signOut(); setShowUserMenu(false); }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                    </svg>
-                    Sign Out
-                  </button>
+            <h2 className="text-lg font-semibold text-gray-900 truncate">
+              {viewTitles[currentView] || 'Dashboard'}
+            </h2>
+          </div>
+
+          {/* Right: Actions (wrap on small screens to prevent overflow) */}
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            {/* Scan QR Button */}
+            <button
+              onClick={() => setShowScanner(true)}
+              className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#ff6b35] to-[#ff8f5e] text-white rounded-lg text-xs font-semibold hover:from-[#e85d2c] hover:to-[#e87d4e] transition-all shadow-sm"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
+              </svg>
+              <span className="hidden sm:inline">Scan QR</span>
+              <span className="sm:hidden">Scan</span>
+            </button>
+
+            {/* Role Switcher (Demo Mode) */}
+            <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+              <button
+                onClick={() => setDemoRole('admin')}
+                className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  isAdmin
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Admin
+              </button>
+              <button
+                onClick={() => setDemoRole('standard')}
+                className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  !isAdmin
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Standard
+              </button>
+            </div>
+
+            {/* Notifications */}
+            <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+              </svg>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+            </button>
+
+            {/* User Menu */}
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8e] flex items-center justify-center text-white text-sm font-semibold">
+                  {user?.full_name?.charAt(0) || 'U'}
                 </div>
-              </>
-            )}
+                <div className="hidden md:block text-left">
+                  <p className="text-sm font-medium text-gray-900">{user?.full_name || 'User'}</p>
+                  <p className="text-xs text-gray-500">{isAdmin ? 'Administrator' : 'Standard User'}</p>
+                </div>
+                <svg className="w-4 h-4 text-gray-400 hidden md:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {showUserMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
+                  <div className="absolute right-0 top-full mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                      <span className={`inline-flex mt-1 items-center px-2 py-0.5 rounded text-xs font-medium ${
+                        isAdmin ? 'bg-purple-50 text-purple-700' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {isAdmin ? 'Admin' : 'Standard User'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => { onOpenAuth(); setShowUserMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                      </svg>
+                      Sign In / Sign Up
+                    </button>
+                    <button
+                      onClick={() => { signOut(); setShowUserMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                      </svg>
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -165,8 +174,12 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
 
   useEffect(() => {
     return () => {
-      if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
     };
   }, []);
 
@@ -225,13 +238,18 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
       }
     };
 
-    if (status === 'requesting') startCamera();
+    if (status === 'requesting') {
+      startCamera();
+    }
+
     return () => { cancelled = true; };
   }, [onResult, status]);
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (manualCode.trim()) onResult(manualCode.trim());
+    if (manualCode.trim()) {
+      onResult(manualCode.trim());
+    }
   };
 
   const handleSwitchToManual = () => {
@@ -258,7 +276,7 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
               <p className="text-[11px] text-white/70">Point camera at equipment QR code</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white" aria-label="Close scanner">
+          <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -268,7 +286,13 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
         <div className="relative bg-black">
           {(status === 'requesting' || status === 'scanning') && (
             <div className="relative aspect-[4/3]">
-              <video ref={videoRef} className="w-full h-full object-cover" playsInline muted autoPlay />
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                playsInline
+                muted
+                autoPlay
+              />
               <canvas ref={canvasRef} className="hidden" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-52 h-52 relative">
@@ -332,7 +356,7 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
                   </svg>
                 </div>
                 <p className="text-sm font-medium text-gray-900 mb-1">QR Detection Not Supported</p>
-                <p className="text-xs text-gray-500 mb-1">Your browser doesn&apos;t support native QR scanning.</p>
+                <p className="text-xs text-gray-500 mb-1">Your browser doesn't support native QR scanning.</p>
                 <p className="text-xs text-gray-400">Enter the QR code manually below.</p>
               </div>
             </div>
@@ -362,7 +386,6 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
               <button
                 onClick={handleSwitchToManual}
                 className="flex-1 text-center px-3 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                type="button"
               >
                 Enter code manually instead
               </button>
@@ -370,7 +393,6 @@ function QRScannerModal({ onClose, onResult }: { onClose: () => void; onResult: 
             <button
               onClick={onClose}
               className="flex-1 text-center px-3 py-2 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-              type="button"
             >
               Cancel
             </button>
