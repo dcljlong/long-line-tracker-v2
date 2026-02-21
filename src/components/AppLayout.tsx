@@ -1,32 +1,27 @@
-﻿import React, { useState, useCallback } from 'react';
+﻿import React, { useState, useCallback, lazy, Suspense } from 'react';
 import { AuthProvider } from '@/context/AuthContext';
 import { EquipmentProvider, useEquipment } from '@/context/EquipmentContext';
 import { useAuth } from '@/context/AuthContext';
 
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
-import Dashboard from '@/components/Dashboard';
-import EquipmentList from '@/components/EquipmentList';
-import EquipmentDetail from '@/components/EquipmentDetail';
-import EquipmentForm from '@/components/EquipmentForm';
-import MovementForm from '@/components/MovementForm';
-import ImportModal from '@/components/ImportModal';
-import AuthModal from '@/components/AuthModal';
 import Toast from '@/components/Toast';
 
 import { UI } from '@/lib/ui';
-
 import type { MovementEventType } from '@/types';
+
+const Dashboard = lazy(() => import('@/components/Dashboard'));
+const EquipmentList = lazy(() => import('@/components/EquipmentList'));
+const EquipmentDetail = lazy(() => import('@/components/EquipmentDetail'));
+const EquipmentForm = lazy(() => import('@/components/EquipmentForm'));
+const MovementForm = lazy(() => import('@/components/MovementForm'));
+const ImportModal = lazy(() => import('@/components/ImportModal'));
+const AuthModal = lazy(() => import('@/components/AuthModal'));
 
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
-
-  // Desktop sidebar collapse (LLD-style: width toggle, pushes layout)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  // Mobile off-canvas sidebar
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-
   const [initialFilter, setInitialFilter] = useState<string | undefined>();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
@@ -96,7 +91,6 @@ function AppContent() {
     const normalized = (qrText || '').trim();
     if (!normalized) return;
 
-    // Try match on qr_code or asset_id
     const match = equipment.find(eq =>
       (eq.qr_code && eq.qr_code.toLowerCase() === normalized.toLowerCase()) ||
       (eq.asset_id && eq.asset_id.toLowerCase() === normalized.toLowerCase())
@@ -105,60 +99,31 @@ function AppContent() {
     if (match) {
       selectEquipment(match.id);
       setCurrentView('detail');
-      showToast(`Navigated to ${match.name} (${match.asset_id})`, 'success');
+      showToast("Navigated to  ()", 'success');
       setMobileSidebarOpen(false);
     } else {
-      showToast(`No equipment found for QR code: ${normalized}`, 'error');
+      showToast(No equipment found for QR code: , 'error');
     }
   }, [equipment, selectEquipment, showToast]);
 
-  const handleHeaderToggle = useCallback(() => {
-    // Desktop: collapse/expand sidebar (LLD behaviour)
-    if (window.matchMedia && window.matchMedia('(min-width: 768px)').matches) {
-      setSidebarCollapsed(v => !v);
-      return;
-    }
-    // Mobile: open off-canvas
-    setMobileSidebarOpen(v => !v);
-  }, []);
-
   if (isLoading) {
-    return <div className={`min-h-screen flex items-center justify-center text-slate-300 ${UI.shell}`}>Loading…</div>;
+    return <div className={min-h-screen flex items-center justify-center text-slate-300 }>Loading…</div>;
   }
 
   if (!isAuthenticated) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${UI.shell}`}>
-        <AuthModal onClose={() => {}} />
+      <div className={min-h-screen flex items-center justify-center }>
+        <Suspense fallback={null}>
+          <AuthModal onClose={() => {}} />
+        </Suspense>
       </div>
     );
   }
 
+  const Loading = <div className="text-slate-400">Loading...</div>;
+
   return (
-    <div className={`min-h-screen ${UI.shell}`}>
-      {/* Mobile overlay */}
-      {mobileSidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
-          onClick={() => setMobileSidebarOpen(false)}
-        />
-      )}
-
-      {/* Mobile sidebar (off-canvas) */}
-      <div
-        className={`md:hidden fixed inset-y-0 left-0 z-40 transition-transform duration-300 ${
-          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <Sidebar
-          currentView={currentView}
-          onNavigate={handleNavigate}
-          collapsed={false}
-          onToggle={() => setMobileSidebarOpen(false)}
-        />
-      </div>
-
-      {/* Desktop layout (pushes main content like LLD) */}
+    <div className={min-h-screen }>
       <div className="hidden md:flex min-h-screen">
         <Sidebar
           currentView={currentView}
@@ -172,91 +137,57 @@ function AppContent() {
             onOpenAuth={() => setShowAuthModal(true)}
             currentView={currentView}
             onScanResult={handleScanResult}
-            onToggleSidebar={handleHeaderToggle}
+            onToggleSidebar={() => setMobileSidebarOpen(v => !v)}
           />
 
           <div className="p-4 lg:p-6">
-            {currentView === 'dashboard' && (
-              <Dashboard onNavigate={handleNavigate} />
-            )}
-            {currentView === 'equipment' && (
-              <EquipmentList
-                onSelectEquipment={handleSelectEquipment}
-                onCreateNew={handleCreateNew}
-                onImport={() => setShowImportModal(true)}
-                initialFilter={initialFilter}
-              />
-            )}
-            {currentView === 'detail' && (
-              <EquipmentDetail
-                onBack={handleBackToList}
-                onEdit={handleEditEquipment}
-                onMovement={handleMovement}
-              />
-            )}
+            <Suspense fallback={Loading}>
+              {currentView === 'dashboard' && <Dashboard onNavigate={handleNavigate} />}
+              {currentView === 'equipment' && (
+                <EquipmentList
+                  onSelectEquipment={handleSelectEquipment}
+                  onCreateNew={handleCreateNew}
+                  onImport={() => setShowImportModal(true)}
+                  initialFilter={initialFilter}
+                />
+              )}
+              {currentView === 'detail' && (
+                <EquipmentDetail
+                  onBack={handleBackToList}
+                  onEdit={handleEditEquipment}
+                  onMovement={handleMovement}
+                />
+              )}
+            </Suspense>
           </div>
         </div>
       </div>
 
-      {/* Mobile main (below md) */}
-      <div className="md:hidden">
-        <Header
-          onOpenAuth={() => setShowAuthModal(true)}
-          currentView={currentView}
-          onScanResult={handleScanResult}
-          onToggleSidebar={handleHeaderToggle}
-        />
+      <Suspense fallback={null}>
+        {showEquipmentForm && (
+          <EquipmentForm
+            equipment={editingEquipment ? selectedEquipment : null}
+            onClose={() => setShowEquipmentForm(false)}
+            onSuccess={handleEquipmentFormSuccess}
+          />
+        )}
 
-        <div className="p-4">
-          {currentView === 'dashboard' && (
-            <Dashboard onNavigate={handleNavigate} />
-          )}
-          {currentView === 'equipment' && (
-            <EquipmentList
-              onSelectEquipment={handleSelectEquipment}
-              onCreateNew={handleCreateNew}
-              onImport={() => setShowImportModal(true)}
-              initialFilter={initialFilter}
-            />
-          )}
-          {currentView === 'detail' && (
-            <EquipmentDetail
-              onBack={handleBackToList}
-              onEdit={handleEditEquipment}
-              onMovement={handleMovement}
-            />
-          )}
-        </div>
-      </div>
+        {movementType && selectedEquipment && (
+          <MovementForm
+            type={movementType}
+            equipment={selectedEquipment}
+            onClose={() => setMovementType(null)}
+            onSuccess={handleMovementSuccess}
+          />
+        )}
 
-      {/* Modals */}
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
-
-      {showEquipmentForm && (
-        <EquipmentForm
-          equipment={editingEquipment ? selectedEquipment : null}
-          onClose={() => setShowEquipmentForm(false)}
-          onSuccess={handleEquipmentFormSuccess}
-        />
-      )}
-
-      {movementType && selectedEquipment && (
-        <MovementForm
-          type={movementType}
-          equipment={selectedEquipment}
-          onClose={() => setMovementType(null)}
-          onSuccess={handleMovementSuccess}
-        />
-      )}
-
-      {showImportModal && (
-        <ImportModal
-          onClose={() => setShowImportModal(false)}
-          onSuccess={handleImportSuccess}
-        />
-      )}
+        {showImportModal && (
+          <ImportModal
+            onClose={() => setShowImportModal(false)}
+            onSuccess={handleImportSuccess}
+          />
+        )}
+      </Suspense>
 
       {toast && (
         <Toast
@@ -278,3 +209,4 @@ export default function AppLayout() {
     </AuthProvider>
   );
 }
+
