@@ -13,7 +13,7 @@ import ImportModal from '@/components/ImportModal';
 import AuthModal from '@/components/AuthModal';
 import Toast from '@/components/Toast';
 import type { MovementEventType } from '@/types';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -134,39 +134,26 @@ function AppContent() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header + Mobile Drawer Trigger */}
-        <div className="relative">
-          {/* Mobile Hamburger + Drawer */}
-          <div className="md:hidden absolute left-2 top-2 z-50">
-            <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
-              <SheetTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Open menu"
-                  className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white/90 backdrop-blur px-3 py-2 shadow-sm"
-                >
-                  <svg className="h-5 w-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-              </SheetTrigger>
+        {/* Header */}
+        <Header
+          onOpenAuth={() => setShowAuthModal(true)}
+          currentView={currentView}
+          onScanResult={handleScanResult}
+          onToggleSidebar={() => setMobileSidebarOpen(true)}
+        />
 
-              <SheetContent side="left" className="p-0 w-[82vw] max-w-[340px]">
-                <Sidebar
-                  currentView={currentView}
-                  onNavigate={handleNavigate}
-                  collapsed={false}
-                  onToggle={() => {}}
-                />
-              </SheetContent>
-            </Sheet>
-          </div>
-
-          <Header
-            onOpenAuth={() => setShowAuthModal(true)}
-            currentView={currentView}
-            onScanResult={handleScanResult}
-          />
+        {/* Mobile Drawer (opens via Header hamburger) */}
+        <div className="md:hidden">
+          <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
+            <SheetContent side="left" className="p-0 w-[82vw] max-w-[340px]">
+              <Sidebar
+                currentView={currentView}
+                onNavigate={handleNavigate}
+                collapsed={false}
+                onToggle={() => {}}
+              />
+            </SheetContent>
+          </Sheet>
         </div>
 
         <main className="flex-1 overflow-hidden">
