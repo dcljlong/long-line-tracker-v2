@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 import { computeTagState, computeStatus } from '@/types';
+import { UI } from '@/lib/ui';
 
 interface DashboardProps {
   onNavigate: (view: string, filter?: string) => void;
@@ -31,7 +32,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           <button
             key={card.label}
             onClick={() => onNavigate('equipment', card.filter)}
-            className="bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-5 text-left hover:border-slate-600 hover:bg-slate-800 transition-all"
+            className={`${UI.card} ${UI.cardHover} p-5 text-left transition-all`}
           >
             <p className="text-2xl font-bold text-white">{card.value}</p>
             <p className="text-xs text-slate-400 mt-1 font-medium tracking-wide">
@@ -45,8 +46,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
         {/* RECENT ACTIVITY */}
-        <div className="xl:col-span-2 bg-slate-800/60 border border-slate-700/50 rounded-xl">
-          <div className="px-5 py-4 border-b border-slate-700/50 flex items-center justify-between">
+        <div className={`xl:col-span-2 ${UI.card}`}>
+          <div className={`px-5 py-4 border-b ${UI.divider} flex items-center justify-between`}>
             <h3 className="font-semibold text-white">Recent Activity</h3>
           </div>
 
@@ -76,8 +77,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
 
         {/* COMPLIANCE SUMMARY */}
-        <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl">
-          <div className="px-5 py-4 border-b border-slate-700/50">
+        <div className={`${UI.card}`}>
+          <div className={`px-5 py-4 border-b ${UI.divider}`}>
             <h3 className="font-semibold text-white">Compliance Summary</h3>
           </div>
 
@@ -105,3 +106,5 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     </div>
   );
 }
+
+

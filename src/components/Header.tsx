@@ -19,7 +19,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
   };
 
   return (
-    <header className="sticky top-0 z-20 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
+    <header className="sticky top-0 z-20 bg-slate-900/70 backdrop-blur-xl ring-1 ring-white/10">
       <div className="px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
 
         {/* LEFT */}
@@ -120,3 +120,4 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
     </header>
   );
 }
+
