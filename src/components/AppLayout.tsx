@@ -2,6 +2,7 @@
 import { AuthProvider } from '@/context/AuthContext';
 import { EquipmentProvider, useEquipment } from '@/context/EquipmentContext';
 import { useAuth } from '@/context/AuthContext';
+
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import Dashboard from '@/components/Dashboard';
@@ -12,8 +13,8 @@ import MovementForm from '@/components/MovementForm';
 import ImportModal from '@/components/ImportModal';
 import AuthModal from '@/components/AuthModal';
 import Toast from '@/components/Toast';
+
 import type { MovementEventType } from '@/types';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -21,7 +22,7 @@ function AppContent() {
   // Desktop collapse behaviour
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Mobile drawer behaviour
+  // Mobile drawer behaviour (LLD-style off-canvas)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [initialFilter, setInitialFilter] = useState<string | undefined>();
@@ -109,21 +110,29 @@ function AppContent() {
   }, [equipment, selectEquipment, showToast]);
 
   if (isLoading) {
-    return <div className="h-screen flex items-center justify-center text-slate-600">Loading…</div>;
+    return <div className="min-h-screen flex items-center justify-center text-slate-300 bg-slate-900">Loading…</div>;
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[#f8f9fb]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <AuthModal onClose={() => {}} />
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex bg-[#f8f9fb] overflow-hidden">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex">
+    <div className="min-h-screen bg-slate-900">
+      {/* Mobile overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Desktop sidebar */}
+      <div className="hidden lg:block">
         <Sidebar
           currentView={currentView}
           onNavigate={handleNavigate}
@@ -132,31 +141,34 @@ function AppContent() {
         />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
+      {/* Mobile sidebar (off-canvas) */}
+      <div
+        className={`lg:hidden fixed inset-y-0 left-0 z-40 transition-transform duration-300 ${
+          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <Sidebar
+          currentView={currentView}
+          onNavigate={handleNavigate}
+          collapsed={false}
+          onToggle={() => {}}
+        />
+      </div>
+
+      {/* Main content */}
+      <main
+        className={`transition-all duration-300 min-h-screen ${
+          sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
+        }`}
+      >
         <Header
           onOpenAuth={() => setShowAuthModal(true)}
           currentView={currentView}
           onScanResult={handleScanResult}
-          onToggleSidebar={() => setMobileSidebarOpen(true)}
+          onToggleSidebar={() => setMobileSidebarOpen(v => !v)}
         />
 
-        {/* Mobile Drawer (opens via Header hamburger) */}
-        <div className="md:hidden">
-          <Sheet open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen}>
-            <SheetContent side="left" className="p-0 w-[82vw] max-w-[340px]">
-              <Sidebar
-                currentView={currentView}
-                onNavigate={handleNavigate}
-                collapsed={false}
-                onToggle={() => {}}
-              />
-            </SheetContent>
-          </Sheet>
-        </div>
-
-        <main className="flex-1 overflow-hidden">
+        <div className="p-4 lg:p-6">
           {currentView === 'dashboard' && (
             <Dashboard onNavigate={handleNavigate} />
           )}
@@ -175,47 +187,47 @@ function AppContent() {
               onMovement={handleMovement}
             />
           )}
-        </main>
-      </div>
+        </div>
 
-      {/* Modals */}
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
+        {/* Modals */}
+        {showAuthModal && (
+          <AuthModal onClose={() => setShowAuthModal(false)} />
+        )}
 
-      {showEquipmentForm && (
-        <EquipmentForm
-          equipment={editingEquipment ? selectedEquipment : null}
-          onClose={() => setShowEquipmentForm(false)}
-          onSuccess={handleEquipmentFormSuccess}
-        />
-      )}
+        {showEquipmentForm && (
+          <EquipmentForm
+            equipment={editingEquipment ? selectedEquipment : null}
+            onClose={() => setShowEquipmentForm(false)}
+            onSuccess={handleEquipmentFormSuccess}
+          />
+        )}
 
-      {movementType && selectedEquipment && (
-        <MovementForm
-          equipmentId={selectedEquipment.id}
-          equipmentName={`${selectedEquipment.name} (${selectedEquipment.asset_id})`}
-          eventType={movementType}
-          onClose={() => setMovementType(null)}
-          onSuccess={handleMovementSuccess}
-        />
-      )}
+        {movementType && selectedEquipment && (
+          <MovementForm
+            equipmentId={selectedEquipment.id}
+            equipmentName={`${selectedEquipment.name} (${selectedEquipment.asset_id})`}
+            eventType={movementType}
+            onClose={() => setMovementType(null)}
+            onSuccess={handleMovementSuccess}
+          />
+        )}
 
-      {showImportModal && (
-        <ImportModal
-          onClose={() => setShowImportModal(false)}
-          onSuccess={handleImportSuccess}
-        />
-      )}
+        {showImportModal && (
+          <ImportModal
+            onClose={() => setShowImportModal(false)}
+            onSuccess={handleImportSuccess}
+          />
+        )}
 
-      {/* Toast */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
+        {/* Toast */}
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
+      </main>
     </div>
   );
 }
