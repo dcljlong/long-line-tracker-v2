@@ -1,12 +1,15 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
+import { UI } from '@/lib/ui';
 
 interface ImportModalProps {
+import { UI } from '@/lib/ui';
   onClose: () => void;
   onSuccess: () => void;
 }
 
 interface ImportRow {
+import { UI } from '@/lib/ui';
   asset_id: string;
   name: string;
   category: string;
@@ -21,16 +24,22 @@ interface ImportRow {
 }
 
 export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
+import { UI } from '@/lib/ui';
   const { createEquipment, equipment } = useEquipment();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<'upload' | 'preview' | 'importing' | 'done'>('upload');
+import { UI } from '@/lib/ui';
   const [rows, setRows] = useState<ImportRow[]>([]);
+import { UI } from '@/lib/ui';
   const [importProgress, setImportProgress] = useState(0);
+import { UI } from '@/lib/ui';
   const [importResults, setImportResults] = useState({ success: 0, failed: 0 });
+import { UI } from '@/lib/ui';
 
   const existingAssetIds = new Set(equipment.map(e => e.asset_id.toLowerCase()));
 
   const parseCSV = (text: string): ImportRow[] => {
+import { UI } from '@/lib/ui';
     const lines = text.trim().split('\n');
     if (lines.length < 2) return [];
 
@@ -82,10 +91,12 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
   };
 
   const handleImport = async () => {
+import { UI } from '@/lib/ui';
     const validRows = rows.filter(r => r.isValid);
     if (validRows.length === 0) return;
 
     setStep('importing');
+import { UI } from '@/lib/ui';
     let success = 0;
     let failed = 0;
 
@@ -110,9 +121,11 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
         failed++;
       }
       setImportProgress(((i + 1) / validRows.length) * 100);
+import { UI } from '@/lib/ui';
     }
 
     setImportResults({ success, failed });
+import { UI } from '@/lib/ui';
     setStep('done');
   };
 
@@ -121,11 +134,12 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-gray-900">Import Equipment</h3>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className={`${UI.card} w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col`}>
+        <div className={`px-6 py-4 border-b ${UI.divider} flex items-center justify-between`}>
+          <h3 className="text-lg font-bold text-white">Import Equipment</h3>
+import { UI } from '@/lib/ui';
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
+            <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -136,13 +150,13 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
             <div className="space-y-6">
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-[#1e3a5f] hover:bg-blue-50/30 transition-all"
+                className="border-2 border-dashed border-white/20 rounded-xl p-12 text-center cursor-pointer hover:border- hover:bg-blue-50/30 transition-all"
               >
-                <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <svg className="w-12 h-12 text-white/20 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
-                <p className="text-sm font-medium text-gray-700 mb-1">Click to upload CSV file</p>
-                <p className="text-xs text-gray-400">Supports .csv files</p>
+                <p className="text-sm font-medium text-slate-200 mb-1">Click to upload CSV file</p>
+                <p className="text-xs text-slate-400">Supports .csv files</p>
               </div>
               <input
                 ref={fileInputRef}
@@ -152,9 +166,9 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                 className="hidden"
               />
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">Expected CSV Format</h4>
-                <code className="text-xs text-gray-600 block bg-white p-3 rounded border border-gray-200 font-mono">
+              <div className="bg-slate-900/40 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-white mb-2">Expected CSV Format</h4>
+                <code className="text-xs text-slate-300 block bg-slate-900/40 p-3 rounded border border-white/10 font-mono">
                   asset_id,name,category,condition,notes,test_tag_done_date,test_tag_next_due<br />
                   TT-0025,Makita Drill,Power Tools,Good,Heavy duty,2026-01-15,2026-07-15
                 </code>
@@ -181,16 +195,16 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                 )}
               </div>
 
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="border border-white/10 rounded-lg overflow-hidden">
                 <div className="overflow-x-auto max-h-64">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 sticky top-0">
+                    <thead className="bg-slate-900/40 sticky top-0">
                       <tr>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Status</th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Asset ID</th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Name</th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Category</th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">Issues</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Status</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Asset ID</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Name</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Category</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Issues</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -213,7 +227,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                           </td>
                           <td className="px-3 py-2 font-mono text-xs">{row.asset_id || '-'}</td>
                           <td className="px-3 py-2">{row.name || '-'}</td>
-                          <td className="px-3 py-2 text-gray-500">{row.category}</td>
+                          <td className="px-3 py-2 text-slate-400">{row.category}</td>
                           <td className="px-3 py-2 text-xs text-red-500">{row.errors.join(', ')}</td>
                         </tr>
                       ))}
@@ -225,19 +239,23 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
           )}
 
           {step === 'importing' && (
+import { UI } from '@/lib/ui';
             <div className="text-center py-12">
-              <svg className="animate-spin w-12 h-12 text-[#1e3a5f] mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin w-12 h-12 text- mx-auto mb-4" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              <p className="text-sm font-medium text-gray-900 mb-2">Importing equipment...</p>
-              <div className="w-64 mx-auto h-2 bg-gray-100 rounded-full overflow-hidden">
+              <p className="text-sm font-medium text-white mb-2">Importing equipment...</p>
+import { UI } from '@/lib/ui';
+              <div className="w-64 mx-auto h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#1e3a5f] rounded-full transition-all"
+                  className="h-full bg- rounded-full transition-all"
                   style={{ width: `${importProgress}%` }}
+import { UI } from '@/lib/ui';
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-2">{Math.round(importProgress)}%</p>
+              <p className="text-xs text-slate-400 mt-2">{Math.round(importProgress)}%</p>
+import { UI } from '@/lib/ui';
             </div>
           )}
 
@@ -248,39 +266,44 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-lg font-bold text-gray-900 mb-1">Import Complete</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-lg font-bold text-white mb-1">Import Complete</p>
+import { UI } from '@/lib/ui';
+              <p className="text-sm text-slate-400">
                 {importResults.success} imported successfully
+import { UI } from '@/lib/ui';
                 {importResults.failed > 0 && `, ${importResults.failed} failed`}
+import { UI } from '@/lib/ui';
               </p>
             </div>
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
+        <div className="px-6 py-4 border-t border-white/10 flex items-center justify-end gap-3">
           {step === 'upload' && (
-            <button onClick={onClose} className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <button onClick={onClose} className="px-4 py-2.5 border border-white/10 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900/40">
               Cancel
             </button>
           )}
           {step === 'preview' && (
             <>
-              <button onClick={() => { setStep('upload'); setRows([]); }} className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <button onClick={() => { setStep('upload'); setRows([]); }} className="px-4 py-2.5 border border-white/10 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900/40">
                 Back
               </button>
               <button
                 onClick={handleImport}
+import { UI } from '@/lib/ui';
                 disabled={validCount === 0}
-                className="px-4 py-2.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50"
+                className="px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500 disabled:opacity-50"
               >
                 Import {validCount} Items
+import { UI } from '@/lib/ui';
               </button>
             </>
           )}
           {step === 'done' && (
             <button
               onClick={() => { onSuccess(); onClose(); }}
-              className="px-4 py-2.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e]"
+              className="px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500"
             >
               Done
             </button>
@@ -290,3 +313,5 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
     </div>
   );
 }
+
+

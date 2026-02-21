@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { UI } from '@/lib/ui';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -42,8 +43,8 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
-        <div className="px-6 py-5 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8e] text-white">
+      <div className={`${UI.card} w-full max-w-md overflow-hidden`}>
+        <div className="px-6 py-5 bg-slate-900/60 text-white border-b border-white/10">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-bold">
@@ -53,7 +54,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
                 {mode === 'signin' ? 'Sign in to your account' : 'Set up your new account'}
               </p>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+            <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -73,46 +74,46 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-slate-200 mb-1">Full Name</label>
               <input
                 type="text"
                 value={form.fullName}
                 onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
                 placeholder="John Smith"
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                className="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none ${UI.input}"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-slate-200 mb-1">Email</label>
             <input
               type="email"
               value={form.email}
               onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
               placeholder="you@company.com"
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+              className="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none ${UI.input}"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-slate-200 mb-1">Password</label>
             <input
               type="password"
               value={form.password}
               onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
               placeholder="Enter password"
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+              className="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none ${UI.input}"
             />
           </div>
 
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <label className="block text-sm font-medium text-slate-200 mb-1">Role</label>
               <select
                 value={form.role}
                 onChange={e => setForm(f => ({ ...f, role: e.target.value as any }))}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                className="w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none ${UI.input}"
               >
                 <option value="standard">Standard User (Read-only)</option>
                 <option value="admin">Administrator</option>
@@ -123,17 +124,17 @@ export default function AuthModal({ onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full px-4 py-2.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors disabled:opacity-50"
+            className="w-full px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500 transition-colors disabled:opacity-50"
           >
             {isLoading ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
           </button>
 
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-slate-400">
             {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
             <button
               type="button"
               onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); clearError(); setLocalError(''); }}
-              className="text-[#1e3a5f] font-medium hover:underline"
+              className="text- font-medium hover:underline"
             >
               {mode === 'signin' ? 'Sign Up' : 'Sign In'}
             </button>
@@ -143,3 +144,5 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     </div>
   );
 }
+
+

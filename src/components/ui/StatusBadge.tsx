@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import type { EquipmentStatus, TagState } from '@/types';
 import { getStatusColor, getTagStateColor } from '@/types';
 
@@ -45,8 +45,9 @@ export function ConditionBadge({ condition }: { condition: string }) {
     'Damaged': 'bg-red-50 text-red-700',
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorMap[condition] || 'bg-gray-50 text-gray-700'}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorMap[condition] || 'bg-slate-900/40 text-slate-300'}`}>
       {condition}
     </span>
   );
 }
+

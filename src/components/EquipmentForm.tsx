@@ -2,6 +2,7 @@
 import { useEquipment } from '@/context/EquipmentContext';
 import type { Equipment, EquipmentCondition } from '@/types';
 import { CATEGORIES } from '@/types';
+import { UI } from '@/lib/ui';
 
 interface EquipmentFormProps {
   equipment?: Equipment | null;
@@ -111,13 +112,13 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-gray-900">
+      <div className={`${UI.card} w-full max-w-lg max-h-[90vh] overflow-y-auto`}>
+        <div className={`px-6 py-4 border-b ${UI.divider} flex items-center justify-between`}>
+          <h3 className="text-lg font-bold text-white">
             {isEdit ? 'Edit Equipment' : 'Add New Equipment'}
           </h3>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
+            <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -132,7 +133,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-200 mb-1">
                 Asset ID <span className="text-red-500">*</span>
               </label>
               <input
@@ -141,21 +142,21 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
                 onChange={e => setForm(f => ({ ...f, asset_id: e.target.value }))}
                 placeholder="e.g., TT-0025"
                 disabled={isEdit}
-                className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] ${
-                  errors.asset_id ? 'border-red-300 bg-red-50' : 'border-gray-200'
-                } ${isEdit ? 'bg-gray-50 text-gray-500' : ''}`}
+                className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border- ${
+                  errors.asset_id ? 'border-red-500/40 bg-red-500/10' : 'border-white/10'
+                } ${isEdit ? 'bg-slate-900/40 text-slate-400' : ''}`}
               />
               {errors.asset_id && <p className="text-xs text-red-500 mt-1">{errors.asset_id}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-200 mb-1">
                 Category <span className="text-red-500">*</span>
               </label>
               <select
                 value={form.category}
                 onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none border ${UI.input}`}
               >
                 {CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -165,7 +166,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-slate-200 mb-1">
               Equipment Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -173,15 +174,15 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder="e.g., Hilti TE 70-ATC Rotary Hammer"
-              className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] ${
-                errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200'
+              className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border- ${
+                errors.name ? 'border-red-500/40 bg-red-500/10' : 'border-white/10'
               }`}
             />
             {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+            <label className="block text-sm font-medium text-slate-200 mb-1">Condition</label>
             <div className="flex gap-2 flex-wrap">
               {CONDITIONS.map(cond => (
                 <button
@@ -190,8 +191,8 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
                   onClick={() => setForm(f => ({ ...f, condition: cond }))}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                     form.condition === cond
-                      ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      ? 'bg-amber-500/15 text-amber-200 ring-1 ring-amber-400/20 border-transparent'
+                      : 'border-white/10 text-slate-300 hover:border-white/20'
                   }`}
                 >
                   {cond}
@@ -201,41 +202,41 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes (local only for now)</label>
+            <label className="block text-sm font-medium text-slate-200 mb-1">Notes (local only for now)</label>
             <textarea
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               rows={2}
               placeholder="Equipment description or notes..."
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] resize-none"
+              className="w-full px-3 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border- resize-none"
             />
           </div>
 
-          <div className="border-t border-gray-100 pt-4">
-            <h4 className="text-sm font-semibold text-gray-900 mb-3">Test & Tag Compliance</h4>
+          <div className={`border-t ${UI.divider} pt-4`}>
+            <h4 className="text-sm font-semibold text-white mb-3">Test & Tag Compliance</h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Test Date</label>
+                <label className="block text-sm font-medium text-slate-200 mb-1">Last Test Date</label>
                 <input
                   type="date"
                   value={form.test_tag_done_date}
                   onChange={e => setForm(f => ({ ...f, test_tag_done_date: e.target.value }))}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                  className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none border ${UI.input}`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Next Due Date</label>
+                <label className="block text-sm font-medium text-slate-200 mb-1">Next Due Date</label>
                 <input
                   type="date"
                   value={form.test_tag_next_due}
                   onChange={e => setForm(f => ({ ...f, test_tag_next_due: e.target.value }))}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                  className={`w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none border ${UI.input}`}
                 />
               </div>
             </div>
 
             <div className="mt-3">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-200 mb-1">
                 Due Soon Threshold (days) (local only for now)
               </label>
               <input
@@ -244,7 +245,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
                 onChange={e => setForm(f => ({ ...f, tag_threshold_days: parseInt(e.target.value) || 30 }))}
                 min={1}
                 max={365}
-                className="w-32 px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                className="w-32 px-3 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border-"
               />
             </div>
           </div>
@@ -253,14 +254,14 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2.5 border border-white/10 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900/40 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500 transition-colors disabled:opacity-50"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
@@ -280,3 +281,5 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
     </div>
   );
 }
+
+

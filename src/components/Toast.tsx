@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 
 interface ToastProps {
   message: string;
@@ -16,7 +16,7 @@ export default function Toast({ message, type, onClose, duration = 4000 }: Toast
   const colors = {
     success: 'bg-emerald-600',
     error: 'bg-red-600',
-    info: 'bg-[#1e3a5f]',
+    info: 'bg-slate-800/70 backdrop-blur-md',
   };
 
   const icons = {
@@ -42,7 +42,7 @@ export default function Toast({ message, type, onClose, duration = 4000 }: Toast
       <div className={`${colors[type]} text-white rounded-xl shadow-lg px-4 py-3 flex items-center gap-3 min-w-[300px]`}>
         {icons[type]}
         <p className="text-sm font-medium flex-1">{message}</p>
-        <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
+        <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -51,3 +51,5 @@ export default function Toast({ message, type, onClose, duration = 4000 }: Toast
     </div>
   );
 }
+
+
