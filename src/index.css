@@ -1,4 +1,4 @@
-
+﻿
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
@@ -84,6 +84,46 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 215 25% 27%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }  
+  /* ===== Palette Themes (accent/brand only) =====
+     Applied by setting <html data-theme="...">.
+     Surfaces remain mode-driven via :root/.dark.
+  */
+
+  :root[data-theme="default"], .dark[data-theme="default"] {
+    /* uses the default tokens already defined above */
+  }
+
+  :root[data-theme="forest"], .dark[data-theme="forest"] {
+    --primary: 96 45% 45%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 96 45% 45%;
+    --sidebar-primary: 96 45% 45%;
+    --sidebar-ring: 96 45% 45%;
+  }
+
+  :root[data-theme="ocean"], .dark[data-theme="ocean"] {
+    --primary: 198 85% 45%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 198 85% 45%;
+    --sidebar-primary: 198 85% 45%;
+    --sidebar-ring: 198 85% 45%;
+  }
+
+  :root[data-theme="ember"], .dark[data-theme="ember"] {
+    --primary: 28 92% 52%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --ring: 28 92% 52%;
+    --sidebar-primary: 28 92% 52%;
+    --sidebar-ring: 28 92% 52%;
+  }
+
+  :root[data-theme="slate"], .dark[data-theme="slate"] {
+    --primary: 215 20% 55%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --ring: 215 20% 55%;
+    --sidebar-primary: 215 20% 55%;
+    --sidebar-ring: 215 20% 55%;
   }
 }
 
@@ -172,11 +212,13 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: hsl(var(--muted-foreground) / 0.25);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: hsl(var(--muted-foreground) / 0.45);
 }
+
+
 

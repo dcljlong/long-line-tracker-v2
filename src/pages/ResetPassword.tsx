@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
+import { UI } from "@/lib/ui";
 
 export default function ResetPassword() {
   const nav = useNavigate();
@@ -46,7 +47,6 @@ export default function ResetPassword() {
       if (error) throw error;
 
       setMsg("Password updated. You can now sign in.");
-      // send them to home after a moment
       setTimeout(() => nav("/"), 800);
     } catch (err: any) {
       setMsg(err?.message || "Failed to update password.");
@@ -56,20 +56,27 @@ export default function ResetPassword() {
   };
 
   if (!ready) {
-    return <div className="min-h-screen flex items-center justify-center text-slate-600">Loading…</div>;
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${UI.shell}`}>
+        <div className={`${UI.card} ${UI.cardPad}`}>
+          <div className={`text-sm ${UI.textMuted}`}>Loading…</div>
+        </div>
+      </div>
+    );
   }
 
   if (!hasSession) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f8f9fb] p-6">
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full">
-          <h1 className="text-xl font-bold text-gray-900">Reset link expired or invalid</h1>
-          <p className="text-sm text-gray-600 mt-2">
+      <div className={`min-h-screen flex items-center justify-center p-6 ${UI.shell}`}>
+        <div className={`${UI.card} ${UI.cardPad} max-w-md w-full`}>
+          <h1 className="text-xl font-semibold">Reset link expired or invalid</h1>
+          <p className={`text-sm mt-2 ${UI.textMuted}`}>
             Request a new password reset email and open it immediately.
           </p>
+
           <a
             href="/long-line-tracker-v2/#/"
-            className="inline-block mt-4 text-sm font-medium text-[#1e3a5f] underline"
+            className="inline-flex mt-4 text-sm font-medium underline underline-offset-4 text-primary hover:opacity-90"
           >
             Back to sign in
           </a>
@@ -79,42 +86,44 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8f9fb] p-6">
-      <form onSubmit={onSubmit} className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full space-y-4">
-        <h1 className="text-xl font-bold text-gray-900">Set a new password</h1>
+    <div className={`min-h-screen flex items-center justify-center p-6 ${UI.shell}`}>
+      <form onSubmit={onSubmit} className={`${UI.card} ${UI.cardPad} max-w-md w-full space-y-4`}>
+        <h1 className="text-xl font-semibold">Set a new password</h1>
 
         {msg && (
-          <div className="text-sm rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-800">
+          <div className={`text-sm rounded-lg border ${UI.divider} bg-card/50 px-3 py-2`}>
             {msg}
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">New password</label>
+          <label className={`block text-sm font-medium mb-1 ${UI.textSubtle}`}>New password</label>
           <input
             type="password"
             value={pw1}
             onChange={(e) => setPw1(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+            className={`w-full px-3 py-2.5 rounded-lg text-sm border ${UI.input}`}
             placeholder="At least 8 characters"
+            autoComplete="new-password"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Confirm new password</label>
+          <label className={`block text-sm font-medium mb-1 ${UI.textSubtle}`}>Confirm new password</label>
           <input
             type="password"
             value={pw2}
             onChange={(e) => setPw2(e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+            className={`w-full px-3 py-2.5 rounded-lg text-sm border ${UI.input}`}
             placeholder="Repeat password"
+            autoComplete="new-password"
           />
         </div>
 
         <button
           type="submit"
           disabled={busy}
-          className="w-full px-4 py-2.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors disabled:opacity-50"
+          className="w-full px-4 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-95 transition-opacity disabled:opacity-50"
         >
           {busy ? "Updating…" : "Update password"}
         </button>

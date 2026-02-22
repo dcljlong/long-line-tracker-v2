@@ -123,7 +123,7 @@ function AppContent() {
   const Loading = <div className="text-slate-400">Loading...</div>;
 
   return (
-    <div className={min-h-screen }>
+    <div className="min-h-screen">
       <div className="hidden md:flex min-h-screen">
         <Sidebar
           currentView={currentView}
@@ -209,6 +209,7 @@ export default function AppLayout() {
     </AuthProvider>
   );
 }
+
 
 
 

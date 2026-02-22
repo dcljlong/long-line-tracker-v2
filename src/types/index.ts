@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'standard';
+﻿export type UserRole = 'admin' | 'standard';
 
 export interface UserProfile {
   id: string;
@@ -87,20 +87,31 @@ export function computeStatus(equipment: Equipment): EquipmentStatus {
 }
 
 export function getTagStateColor(state: TagState): { bg: string; text: string; border: string } {
+  // Token-driven surfaces; status hues only for emphasis.
+  // Avoid light-only palette classes (bg-*-50 etc).
   switch (state) {
-    case 'OK': return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' };
-    case 'Due Soon': return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' };
-    case 'Expired': return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' };
-    case 'No Tag': return { bg: 'bg-gray-50', text: 'text-gray-500', border: 'border-gray-200' };
+    case 'OK':
+      return { bg: 'bg-card/60', text: 'text-emerald-400', border: 'border-emerald-500/25' };
+    case 'Due Soon':
+      return { bg: 'bg-card/60', text: 'text-amber-400', border: 'border-amber-500/25' };
+    case 'Expired':
+      return { bg: 'bg-card/60', text: 'text-destructive', border: 'border-destructive/35' };
+    case 'No Tag':
+      return { bg: 'bg-card/60', text: 'text-muted-foreground', border: 'border-border/60' };
   }
 }
 
 export function getStatusColor(status: EquipmentStatus): { bg: string; text: string; dot: string } {
+  // Token-driven surfaces; hue only for dot + label emphasis.
   switch (status) {
-    case 'Available': return { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' };
-    case 'In Use': return { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' };
-    case 'Overdue': return { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500' };
-    case 'Maintenance': return { bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-500' };
+    case 'Available':
+      return { bg: 'bg-card/60', text: 'text-emerald-400', dot: 'bg-emerald-500' };
+    case 'In Use':
+      return { bg: 'bg-card/60', text: 'text-sky-400', dot: 'bg-sky-500' };
+    case 'Overdue':
+      return { bg: 'bg-card/60', text: 'text-destructive', dot: 'bg-destructive' };
+    case 'Maintenance':
+      return { bg: 'bg-card/60', text: 'text-orange-400', dot: 'bg-orange-500' };
   }
 }
 
@@ -118,3 +129,4 @@ export const CATEGORIES = [
   'Safety Equipment',
   'Hand Tools',
 ];
+
