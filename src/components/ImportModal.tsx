@@ -125,7 +125,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
         <div className={`px-6 py-4 border-b ${UI.divider} flex items-center justify-between`}>
           <h3 className="text-lg font-bold text-white">Import Equipment</h3>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-            <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -141,8 +141,8 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                 <svg className="w-12 h-12 text-white/20 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
-                <p className="text-sm font-medium text-slate-200 mb-1">Click to upload CSV file</p>
-                <p className="text-xs text-slate-400">Supports .csv files</p>
+                <p className="text-sm font-medium text-foreground/90 mb-1">Click to upload CSV file</p>
+                <p className="text-xs text-muted-foreground">Supports .csv files</p>
               </div>
               <input
                 ref={fileInputRef}
@@ -152,9 +152,9 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                 className="hidden"
               />
 
-              <div className="bg-slate-900/40 rounded-lg p-4">
+              <div className="bg-background/60 rounded-lg p-4">
                 <h4 className="text-sm font-semibold text-white mb-2">Expected CSV Format</h4>
-                <code className="text-xs text-slate-300 block bg-slate-900/40 p-3 rounded border border-white/10 font-mono">
+                <code className="text-xs text-foreground/85 block bg-background/60 p-3 rounded border border-border/70 font-mono">
                   asset_id,name,category,condition,notes,test_tag_done_date,test_tag_next_due<br />
                   TT-0025,Makita Drill,Power Tools,Good,Heavy duty,2026-01-15,2026-07-15
                 </code>
@@ -181,16 +181,16 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                 )}
               </div>
 
-              <div className="border border-white/10 rounded-lg overflow-hidden">
+              <div className="border border-border/70 rounded-lg overflow-hidden">
                 <div className="overflow-x-auto max-h-64">
                   <table className="w-full text-sm">
-                    <thead className="bg-slate-900/40 sticky top-0">
+                    <thead className="bg-background/60 sticky top-0">
                       <tr>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Status</th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Asset ID</th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Name</th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Category</th>
-                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-400">Issues</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Status</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Asset ID</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Name</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Category</th>
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Issues</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -213,7 +213,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                           </td>
                           <td className="px-3 py-2 font-mono text-xs">{row.asset_id || '-'}</td>
                           <td className="px-3 py-2">{row.name || '-'}</td>
-                          <td className="px-3 py-2 text-slate-400">{row.category}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{row.category}</td>
                           <td className="px-3 py-2 text-xs text-red-500">{row.errors.join(', ')}</td>
                         </tr>
                       ))}
@@ -237,7 +237,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                   style={{ width: `${importProgress}%` }}
                 />
               </div>
-              <p className="text-xs text-slate-400 mt-2">{Math.round(importProgress)}%</p>
+              <p className="text-xs text-muted-foreground mt-2">{Math.round(importProgress)}%</p>
             </div>
           )}
 
@@ -249,7 +249,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
                 </svg>
               </div>
               <p className="text-lg font-bold text-white mb-1">Import Complete</p>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 {importResults.success} imported successfully
                 {importResults.failed > 0 && `, ${importResults.failed} failed`}
               </p>
@@ -257,21 +257,21 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
           )}
         </div>
 
-        <div className="px-6 py-4 border-t border-white/10 flex items-center justify-end gap-3">
+        <div className="px-6 py-4 border-t border-border/70 flex items-center justify-end gap-3">
           {step === 'upload' && (
-            <button onClick={onClose} className="px-4 py-2.5 border border-white/10 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900/40">
+            <button onClick={onClose} className="px-4 py-2.5 border border-border/70 rounded-lg text-sm font-medium text-foreground/90 hover:bg-background/60">
               Cancel
             </button>
           )}
           {step === 'preview' && (
             <>
-              <button onClick={() => { setStep('upload'); setRows([]); }} className="px-4 py-2.5 border border-white/10 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900/40">
+              <button onClick={() => { setStep('upload'); setRows([]); }} className="px-4 py-2.5 border border-border/70 rounded-lg text-sm font-medium text-foreground/90 hover:bg-background/60">
                 Back
               </button>
               <button
                 onClick={handleImport}
                 disabled={validCount === 0}
-                className="px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500 disabled:opacity-50"
+                className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary disabled:opacity-50"
               >
                 Import {validCount} Items
               </button>
@@ -280,7 +280,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
           {step === 'done' && (
             <button
               onClick={() => { onSuccess(); onClose(); }}
-              className="px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500"
+              className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary"
             >
               Done
             </button>
@@ -290,6 +290,7 @@ export default function ImportModal({ onClose, onSuccess }: ImportModalProps) {
     </div>
   );
 }
+
 
 
 

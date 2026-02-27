@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 import { computeTagState, computeStatus } from '@/types';
 import { UI } from '@/lib/ui';
@@ -11,16 +11,16 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const { stats, equipment, movements, isLoading } = useEquipment();
 
   if (isLoading) {
-    return <div className="text-slate-400">Loading...</div>;
+    return <div className="text-muted-foreground">Loading...</div>;
   }
 
   const kpiCards = [
-    { label: 'Total Equipment', value: stats.total, filter: 'All' },
-    { label: 'Available', value: stats.available, filter: 'Available' },
-    { label: 'In Use', value: stats.inUse, filter: 'In Use' },
-    { label: 'Overdue', value: stats.overdue, filter: 'Overdue' },
-    { label: 'Expired Tags', value: stats.expiredTags, filter: 'Expired Tags' },
-    { label: 'Due Soon', value: stats.dueSoon, filter: 'Due Soon' },
+    { label: 'Total Equipment', value: stats.total, filter: 'All', kind: 'info' },
+    { label: 'Available', value: stats.available, filter: 'Available', kind: 'info' },
+    { label: 'In Use', value: stats.inUse, filter: 'In Use', kind: 'info' },
+    { label: 'Overdue', value: stats.overdue, filter: 'Overdue', kind: 'danger' },
+    { label: 'Expired Tags', value: stats.expiredTags, filter: 'Expired Tags', kind: 'danger' },
+    { label: 'Due Soon', value: stats.dueSoon, filter: 'Due Soon', kind: 'warning' },
   ];
 
   return (
@@ -28,14 +28,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
       {/* KPI GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4">
-        {kpiCards.map(card => (
+        {kpiCards.map((card, idx) => (
           <button
             key={card.label}
             onClick={() => onNavigate('equipment', card.filter)}
-            className={`${UI.card} ${UI.cardHover} p-5 text-left transition-all`}
+            className={`${UI.card} ${UI.cardHover} llt-pad-md text-left transition-all ${idx === 0 ? "llt-kpi-primary 2xl:col-span-2" : ""} ${Number(card.value) > 0 && card.kind === "danger" ? "llt-kpi-state-danger" : ""} ${Number(card.value) > 0 && card.kind === "warning" ? "llt-kpi-state-warning" : ""} ${Number(card.value) > 0 && card.kind === "info" ? "llt-kpi-state-info" : ""}`}
           >
-            <p className="text-2xl font-bold text-white">{card.value}</p>
-            <p className="text-xs text-slate-400 mt-1 font-medium tracking-wide">
+            <p className="llt-kpi">{card.value}</p>
+            <p className="llt-eyebrow text-muted-foreground mt-1">
               {card.label}
             </p>
           </button>
@@ -53,21 +53,21 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
           <div className="divide-y divide-slate-700/40">
             {movements.length === 0 ? (
-              <div className="p-6 text-sm text-slate-500 text-center">
+              <div className="llt-pad-md llt-body-sm text-muted-foreground/70 text-center">
                 No recent activity
               </div>
             ) : (
               movements.slice(0, 8).map(m => (
                 <div key={m.id} className="px-5 py-3 flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-200">
+                    <p className="llt-body-sm text-foreground/90">
                       {m.event_type === 'check_out' ? 'Checked Out' : 'Returned'}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="llt-caption text-muted-foreground/70">
                       {new Date(m.event_timestamp).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className="text-xs text-slate-400">
+                  <span className="llt-caption text-muted-foreground">
                     {m.assigned_to}
                   </span>
                 </div>
@@ -82,7 +82,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             <h3 className="font-semibold text-white">Compliance Summary</h3>
           </div>
 
-          <div className="p-5 space-y-4 text-sm text-slate-300">
+          <div className="llt-pad-md llt-stack-md llt-body-sm text-foreground/85">
             <div className="flex justify-between">
               <span>Compliant</span>
               <span>{equipment.filter(eq => computeTagState(eq) === 'OK').length}</span>
@@ -106,5 +106,6 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     </div>
   );
 }
+
 
 

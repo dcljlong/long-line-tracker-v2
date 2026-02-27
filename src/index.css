@@ -1,224 +1,971 @@
-ï»¿
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------
+   LLT — Industry standard theme tokens
+   - Neutral system is fixed (professional)
+   - Accent comes from [data-theme]
+   - Works for light + dark (class-based)
+   - Tailwind uses these via tailwind.config.ts (hsl(var(--token)))
+------------------------------------------------------------ */
+
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    /* Neutrals (Light) */
+    --background: 220 20% 98%;
+    --foreground: 222 24% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 24% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 24% 12%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    --secondary: 220 16% 96%;
+    --secondary-foreground: 222 24% 16%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 220 16% 95%;
+    --muted-foreground: 220 10% 45%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 220 16% 95%;
+    --accent-foreground: 222 24% 16%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --border: 220 14% 90%;
+    --input: 220 14% 90%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    /* Accent defaults (overridden by data-theme blocks below) */
+    --primary: 142 52% 38%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 142 52% 38%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 220 23% 95%;
-    --sidebar-foreground: 215 25% 27%;
-    --sidebar-primary: 221 83% 53%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 90%;
-    --sidebar-accent-foreground: 215 25% 27%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 221 83% 53%;
+    /* Sidebar (Light) */
+    --sidebar-background: 220 18% 96%;
+    --sidebar-foreground: 222 24% 14%;
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: 220 14% 92%;
+    --sidebar-accent-foreground: 222 24% 14%;
+    --sidebar-border: 220 14% 88%;
+    --sidebar-ring: var(--ring);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Neutrals (Dark) */
+    --background: 222 40% 6%;
+    --foreground: 210 20% 96%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 38% 9%;
+    --card-foreground: 210 20% 96%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 38% 9%;
+    --popover-foreground: 210 20% 96%;
 
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 222 26% 14%;
+    --secondary-foreground: 210 20% 96%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --muted: 222 24% 14%;
+    --muted-foreground: 215 14% 68%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 222 26% 14%;
+    --accent-foreground: 210 20% 96%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62% 36%;
+    --destructive-foreground: 210 20% 96%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --border: 222 18% 18%;
+    --input: 222 18% 18%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    /* Accent defaults (overridden by data-theme blocks below) */
+    --primary: 142 56% 44%;
+    --primary-foreground: 222 40% 6%;
+    --ring: 142 56% 44%;
 
-    --sidebar-background: 215 28% 17%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 25% 27%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 25% 27%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }  
-  /* ===== Palette Themes (accent/brand only) =====
-     Applied by setting <html data-theme="...">.
-     Surfaces remain mode-driven via :root/.dark.
-  */
-
-  :root[data-theme="default"], .dark[data-theme="default"] {
-    /* uses the default tokens already defined above */
+    /* Sidebar (Dark) */
+    --sidebar-background: 222 32% 10%;
+    --sidebar-foreground: 210 20% 96%;
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: 222 22% 14%;
+    --sidebar-accent-foreground: 210 20% 96%;
+    --sidebar-border: 222 18% 18%;
+    --sidebar-ring: var(--ring);
   }
 
-  :root[data-theme="forest"], .dark[data-theme="forest"] {
-    --primary: 96 45% 45%;
-    --primary-foreground: 210 40% 98%;
-    --ring: 96 45% 45%;
-    --sidebar-primary: 96 45% 45%;
-    --sidebar-ring: 96 45% 45%;
+  /* ------------------------------------------------------------
+     Palettes (Accent only)
+     Keys MUST match theme.ts: slate | forest | ocean | ember
+     These only set primary/ring + sidebar-primary (all neutral remains stable)
+  ------------------------------------------------------------ */
+
+  /* Slate (cool neutral accent) */
+  :root[data-theme="slate"] {
+    --primary: 220 14% 28%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 220 14% 28%;
+  }
+  .dark[data-theme="slate"] {
+    --primary: 220 14% 68%;
+    --primary-foreground: 222 40% 6%;
+    --ring: 220 14% 68%;
   }
 
-  :root[data-theme="ocean"], .dark[data-theme="ocean"] {
-    --primary: 198 85% 45%;
-    --primary-foreground: 210 40% 98%;
-    --ring: 198 85% 45%;
-    --sidebar-primary: 198 85% 45%;
-    --sidebar-ring: 198 85% 45%;
+  /* Forest (LLT brand-leaning green) */
+  :root[data-theme="forest"] {
+    --primary: 142 52% 38%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 142 52% 38%;
+  }
+  .dark[data-theme="forest"] {
+    --primary: 142 56% 44%;
+    --primary-foreground: 222 40% 6%;
+    --ring: 142 56% 44%;
   }
 
-  :root[data-theme="ember"], .dark[data-theme="ember"] {
-    --primary: 28 92% 52%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --ring: 28 92% 52%;
-    --sidebar-primary: 28 92% 52%;
-    --sidebar-ring: 28 92% 52%;
+  /* Ocean (enterprise blue) */
+  :root[data-theme="ocean"] {
+    --primary: 210 78% 44%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 210 78% 44%;
+  }
+  .dark[data-theme="ocean"] {
+    --primary: 210 86% 58%;
+    --primary-foreground: 222 40% 6%;
+    --ring: 210 86% 58%;
   }
 
-  :root[data-theme="slate"], .dark[data-theme="slate"] {
-    --primary: 215 20% 55%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --ring: 215 20% 55%;
-    --sidebar-primary: 215 20% 55%;
-    --sidebar-ring: 215 20% 55%;
+  /* Ember (professional amber/orange) */
+  :root[data-theme="ember"] {
+    --primary: 26 90% 48%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 26 90% 48%;
+  }
+  .dark[data-theme="ember"] {
+    --primary: 28 92% 58%;
+    --primary-foreground: 222 40% 6%;
+    --ring: 28 92% 58%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
   body {
-    @apply bg-background text-foreground font-sans dark:bg-background dark:text-foreground;
+    @apply text-foreground font-sans; background: var(--surface-0);
   }
 
-  pre, code {
-    @apply font-mono;
-  }
+  pre, code { @apply font-mono; }
 }
 
-.markdown-editor {
-  @apply font-mono text-base leading-relaxed;
-}
-
-.markdown-preview {
-  @apply prose max-w-none prose-blue dark:prose-invert;
-}
-
-.markdown-preview pre {
-  @apply bg-secondary p-4 rounded-md overflow-x-auto;
-}
-
-.markdown-preview code {
-  @apply text-sm font-mono text-primary;
-}
-
-.markdown-preview h1,
-.markdown-preview h2,
-.markdown-preview h3,
-.markdown-preview h4,
-.markdown-preview h5,
-.markdown-preview h6 {
-  @apply font-sans font-semibold text-foreground;
-}
-
-.markdown-preview ul,
-.markdown-preview ul,
-.markdown-preview ol {
-  @apply my-4 ml-6;
-}
-
-/* Toast animation */
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out;
-}
-
-/* QR Scanner scanning line animation */
-@keyframes scan-line {
-  0% { top: 8px; }
-  50% { top: calc(100% - 8px); }
-  100% { top: 8px; }
-}
-
-.animate-scan-line {
-  animation: scan-line 2s ease-in-out infinite;
-  position: absolute;
-}
-
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+/* Scrollbar styling (token-driven) */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--muted-foreground) / 0.25);
   border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.45);
+  border-radius: 3px;
 }
 
 
+/* ------------------------------------------------------------
+   LLT Premium UI Utilities (token-driven)
+------------------------------------------------------------ */
+@layer utilities {
+  .llt-shell {
+    background:
+      radial-gradient(900px 600px at 20% -10%, hsl(var(--primary) / 0.22), transparent 60%),
+      radial-gradient(800px 520px at 85% 0%, hsl(var(--ring) / 0.14), transparent 55%),
+      radial-gradient(900px 600px at 70% 110%, hsl(var(--primary) / 0.10), transparent 55%),
+      hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  .llt-top-glow {
+    box-shadow:
+      0 1px 0 hsl(var(--border) / 0.65) inset,
+      0 -1px 0 hsl(var(--border) / 0.35) inset;
+  }
+
+  .llt-card {
+    background: hsl(var(--card) / 0.82);
+    border: 1px solid hsl(var(--border) / 0.70);
+    box-shadow:
+      0 14px 45px rgba(0,0,0,0.22),
+      0 1px 0 rgba(255,255,255,0.04) inset;
+    backdrop-filter: blur(14px);
+  }
+
+  .llt-card-hover {
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  }
+  .llt-card-hover:hover {
+    transform: translateY(-1px);
+    border-color: hsl(var(--ring) / 0.40);
+    box-shadow:
+      0 18px 60px rgba(0,0,0,0.28),
+      0 1px 0 rgba(255,255,255,0.05) inset;
+  }
+
+  .llt-focus {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.45);
+  }
+}
+
+
+/* -----------------------------
+   THEME PALETTE: ELITE GOLD
+   Gold:     #D4AF37
+   Champagne:#F9E4B7
+   Charcoal: #121212 / #1A1A1A
+   Slate:    #2C3E50
+-------------------------------- */
+
+/* Light mode + Elite Gold */
+:root[data-theme="elite-gold"]{
+  --background: 40 60% 97%;
+  --foreground: 0 0% 10%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10%;
+
+  --primary: 45 65% 53%;            /* gold */
+  --primary-foreground: 0 0% 8%;    /* near-black text on gold */
+
+  --secondary: 210 25% 94%;         /* soft slate-gray */
+  --secondary-foreground: 0 0% 10%;
+
+  --muted: 40 25% 94%;
+  --muted-foreground: 215 15% 40%;
+
+  --accent: 40 70% 85%;             /* champagne */
+  --accent-foreground: 0 0% 10%;
+
+  --destructive: 0 75% 52%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 40 25% 86%;
+  --input: 40 25% 86%;
+  --ring: 45 65% 53%;
+
+  --sidebar-background: 40 60% 96%;
+  --sidebar-foreground: 0 0% 10%;
+  --sidebar-primary: 45 65% 53%;
+  --sidebar-primary-foreground: 0 0% 8%;
+  --sidebar-accent: 40 70% 90%;
+  --sidebar-accent-foreground: 0 0% 10%;
+  --sidebar-border: 40 25% 86%;
+  --sidebar-ring: 45 65% 53%;
+}
+
+/* Dark mode + Elite Gold */
+.dark[data-theme="elite-gold"]{
+  --background: 0 0% 7%;            /* #121212 */
+  --foreground: 210 40% 98%;
+
+  --card: 0 0% 10%;                 /* #1A1A1A */
+  --card-foreground: 210 40% 98%;
+
+  --popover: 0 0% 9%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 45 65% 53%;            /* gold */
+  --primary-foreground: 0 0% 8%;
+
+  --secondary: 210 25% 18%;         /* slate-blue/tech tint */
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 210 20% 14%;
+  --muted-foreground: 215 18% 70%;
+
+  --accent: 40 70% 85%;             /* champagne highlight */
+  --accent-foreground: 0 0% 10%;
+
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 210 20% 18%;
+  --input: 210 20% 18%;
+  --ring: 45 65% 53%;
+
+  --sidebar-background: 0 0% 9%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 45 65% 53%;
+  --sidebar-primary-foreground: 0 0% 8%;
+  --sidebar-accent: 210 20% 14%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 210 20% 18%;
+  --sidebar-ring: 45 65% 53%;
+}
+
+
+/* ==========================================================
+   THEME: IVORY & GOLD (High-End Boutique Light Mode)
+   Default = Light Luxury
+   Dark mode auto-switch supported via .dark
+========================================================== */
+
+/* LIGHT MODE (Ivory & Gold) */
+:root[data-theme="ivory-gold"]{
+  --background: 0 0% 98%;            /* #FAFAFA */
+  --foreground: 0 0% 20%;            /* #333333 */
+
+  --card: 0 0% 100%;                 /* White cards */
+  --card-foreground: 0 0% 18%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 18%;
+
+  --primary: 43 89% 39%;             /* #B8860B Deep Gold */
+  --primary-foreground: 0 0% 98%;
+
+  --secondary: 0 0% 94%;             /* #F0F0F0 Platinum */
+  --secondary-foreground: 0 0% 25%;
+
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 40%;      /* #4A4A4A */
+
+  --accent: 43 89% 85%;              /* Soft gold highlight */
+  --accent-foreground: 0 0% 18%;
+
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 88%;                /* #E5E5E5 */
+  --input: 0 0% 88%;
+  --ring: 43 89% 39%;
+
+  --sidebar-background: 0 0% 96%;
+  --sidebar-foreground: 0 0% 20%;
+  --sidebar-primary: 43 89% 39%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 0 0% 92%;
+  --sidebar-accent-foreground: 0 0% 20%;
+  --sidebar-border: 0 0% 88%;
+  --sidebar-ring: 43 89% 39%;
+}
+
+/* DARK MODE (Elite Tech fallback when user switches) */
+.dark[data-theme="ivory-gold"]{
+  --background: 0 0% 7%;             /* #121212 */
+  --foreground: 0 0% 90%;
+
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 90%;
+
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 90%;
+
+  --primary: 45 65% 53%;             /* Metallic Gold */
+  --primary-foreground: 0 0% 8%;
+
+  --secondary: 210 25% 18%;
+  --secondary-foreground: 0 0% 90%;
+
+  --muted: 210 20% 14%;
+  --muted-foreground: 0 0% 70%;
+
+  --accent: 210 35% 16%;             /* Deep Navy */
+  --accent-foreground: 0 0% 90%;
+
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 210 20% 18%;
+  --input: 210 20% 18%;
+  --ring: 45 65% 53%;
+
+  --sidebar-background: 0 0% 9%;
+  --sidebar-foreground: 0 0% 90%;
+  --sidebar-primary: 45 65% 53%;
+  --sidebar-primary-foreground: 0 0% 8%;
+  --sidebar-accent: 210 20% 14%;
+  --sidebar-accent-foreground: 0 0% 90%;
+  --sidebar-border: 210 20% 18%;
+  --sidebar-ring: 45 65% 53%;
+}
+
+
+/* LLT LUX PATCH START */
+/* ------------------------------------------------------------
+   LLT Luxury Depth + Boutique Gold Gradients (token-driven)
+------------------------------------------------------------ */
+@layer utilities {
+
+  /* Deeper, more “luxury” card */
+  .llt-card {
+    background: hsl(var(--card) / 0.84);
+    border: 1px solid hsl(var(--border) / 0.72);
+    box-shadow:
+      0 30px 90px rgba(0,0,0,0.34),
+      0 16px 48px rgba(0,0,0,0.22),
+      0 1px 0 rgba(255,255,255,0.06) inset;
+    backdrop-filter: blur(16px);
+  }
+
+  /* Extra “lift” on hover */
+  .llt-card-hover {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+  }
+  .llt-card-hover:hover {
+    transform: translateY(-2px);
+    border-color: hsl(var(--ring) / 0.45);
+    box-shadow:
+      0 40px 120px rgba(0,0,0,0.40),
+      0 18px 60px rgba(0,0,0,0.26),
+      0 1px 0 rgba(255,255,255,0.07) inset;
+  }
+
+  /* Premium primary button: gold gradient + subtle shine */
+  .llt-btn-gold {
+    background-image:
+      radial-gradient(120% 140% at 20% 0%, rgba(255,255,255,0.22), rgba(255,255,255,0) 60%),
+      linear-gradient(135deg, hsl(var(--primary) / 0.98), hsl(var(--primary) / 0.80));
+    border: 1px solid hsl(var(--ring) / 0.35);
+    box-shadow:
+      0 14px 34px rgba(0,0,0,0.25),
+      0 1px 0 rgba(255,255,255,0.14) inset;
+    transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+  }
+
+  .llt-btn-gold:hover {
+    transform: translateY(-1px);
+    filter: saturate(1.12) brightness(1.04);
+    box-shadow:
+      0 18px 46px rgba(0,0,0,0.30),
+      0 1px 0 rgba(255,255,255,0.16) inset;
+  }
+
+  .llt-btn-gold:active {
+    transform: translateY(0px);
+    filter: saturate(1.05) brightness(0.98);
+  }
+
+  /* Strong contrast helper for light themes (especially Settings page) */
+  .llt-text-strong {
+    color: hsl(var(--foreground) / 0.92);
+  }
+  .llt-text-soft {
+    color: hsl(var(--foreground) / 0.72);
+  }
+}
+/* LLT LUX PATCH END */
+
+
+/* ==========================================
+   LONG LINE TRACKER – ENTERPRISE SURFACE SYSTEM
+   ========================================== */
+
+:root {
+  /* Surface hierarchy */
+  --surface-0: hsl(var(--background));
+  --surface-1: hsl(var(--muted));
+  --surface-2: hsl(var(--card));
+  --surface-3: hsl(var(--card) / 0.96);
+  --surface-overlay: hsl(var(--popover));
+
+  /* Interaction layers */
+  --interactive-hover: hsl(var(--foreground) / 0.04);
+  --interactive-active: hsl(var(--foreground) / 0.08);
+
+  --focus-ring-soft: hsl(var(--primary) / 0.35);
+  --focus-ring-strong: hsl(var(--primary));
+
+  /* Density scale */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 1.75rem;
+  --space-xl: 2.5rem;
+}
+
+.dark {
+  --surface-1: hsl(var(--muted));
+  --surface-2: hsl(var(--card));
+  --surface-3: hsl(var(--card) / 0.92);
+
+  --interactive-hover: hsl(0 0% 100% / 0.05);
+  --interactive-active: hsl(0 0% 100% / 0.08);
+}
+
+/* ==========================================
+   LONG LINE TRACKER – SURFACE UTILITIES
+   ========================================== */
+
+.llt-surface-0 { background: var(--surface-0); }
+.llt-surface-1 { background: var(--surface-1); }
+.llt-surface-2 { background: var(--surface-2); }
+.llt-surface-3 { background: var(--surface-3); }
+.llt-surface-overlay { background: var(--surface-overlay); }
+
+
+/* ==========================================
+   LONG LINE TRACKER – STATUS SEMANTICS (TOKEN-DRIVEN)
+   ========================================== */
+
+/* Defaults: derived from existing theme tokens.
+   Later: override per palette if desired (forest/ocean/ember/etc). */
+:root {
+  --status-success: var(--primary);
+  --status-warning: var(--ring);
+  --status-info: var(--secondary);
+}
+
+/* Text */
+.llt-text-success { color: hsl(var(--status-success) / 0.95); }
+.llt-text-warning { color: hsl(var(--status-warning) / 0.95); }
+.llt-text-info    { color: hsl(var(--status-info) / 0.95); }
+
+/* Border */
+.llt-border-success { border-color: hsl(var(--status-success) / 0.25); }
+.llt-border-warning { border-color: hsl(var(--status-warning) / 0.25); }
+.llt-border-info    { border-color: hsl(var(--status-info) / 0.25); }
+
+/* Dots */
+.llt-dot-success { background: hsl(var(--status-success) / 0.95); }
+.llt-dot-warning { background: hsl(var(--status-warning) / 0.95); }
+.llt-dot-info    { background: hsl(var(--status-info) / 0.95); }
+
+
+/* ==========================================
+   LONG LINE TRACKER – FIELD SYSTEM (PREMIUM)
+   ========================================== */
+
+.llt-field {
+  background: var(--surface-0);
+  border: 1px solid hsl(var(--border) / 0.70);
+  border-radius: var(--llt-radius-md);
+  color: hsl(var(--foreground));
+  transition: border-color 160ms var(--llt-ease),
+              box-shadow 160ms var(--llt-ease),
+              background-color 160ms var(--llt-ease);
+}
+
+.llt-field:hover {
+  background: color-mix(in hsl, var(--surface-0), var(--interactive-hover) 40%);
+  border-color: hsl(var(--border) / 0.85);
+}
+
+.llt-field:focus-visible {
+  outline: none;
+  border-color: hsl(var(--primary) / 0.55);
+  box-shadow: 0 0 0 3px var(--focus-ring-soft);
+}
+
+.dark .llt-field {
+  border-color: hsl(var(--border) / 0.55);
+}
+
+
+/* ==========================================
+   LONG LINE TRACKER – OVERLAY PANEL SHELL
+   ========================================== */
+
+.llt-overlay-panel {
+  background: var(--surface-overlay);
+  border: 1px solid hsl(var(--border) / 0.55);
+  border-radius: var(--llt-radius-lg);
+  box-shadow: var(--llt-shadow-3);
+}
+
+
+/* ==========================================
+   LONG LINE TRACKER – NAVIGATION STATE SYSTEM
+   ========================================== */
+
+:root {
+  /* Nav surfaces */
+  --nav-surface: var(--surface-0);
+  --nav-surface-blur: hsl(var(--background) / 0.75);
+
+  /* Nav states */
+  --nav-hover: var(--interactive-hover);
+  --nav-active: var(--interactive-active);
+
+  /* Active indicator (gold restraint) */
+  --nav-accent: var(--primary);
+  --nav-accent-soft: hsl(var(--primary) / 0.18);
+}
+
+.llt-nav-shell {
+  background: var(--nav-surface-blur);
+  border-bottom: 1px solid hsl(var(--border) / 0.60);
+  backdrop-filter: blur(18px);
+}
+
+.llt-nav-item {
+  position: relative;
+  border-radius: 9999px;
+  transition: background-color 160ms var(--llt-ease),
+              color 160ms var(--llt-ease),
+              box-shadow 160ms var(--llt-ease);
+}
+
+.llt-nav-item:hover {
+  background: var(--nav-hover);
+}
+
+.llt-nav-item[aria-current="page"],
+.llt-nav-item[data-active="true"] {
+  background: var(--nav-active);
+  box-shadow: 0 0 0 1px hsl(var(--border) / 0.65);
+}
+
+.llt-nav-item[aria-current="page"]::after,
+.llt-nav-item[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 9999px;
+  background: hsl(var(--nav-accent) / 0.92);
+  box-shadow: 0 0 0 6px var(--nav-accent-soft);
+}
+
+.llt-nav-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring-soft);
+}
+
+
+/* ==========================================
+   LONG LINE TRACKER – TYPOGRAPHY + RHYTHM SYSTEM
+   ========================================== */
+
+:root{
+  /* Type scale */
+  --fs-h1: 1.625rem;   /* 26 */
+  --fs-h2: 1.25rem;    /* 20 */
+  --fs-h3: 1.0625rem;  /* 17 */
+  --fs-body: 0.9375rem;/* 15 */
+  --fs-sm: 0.875rem;   /* 14 */
+  --fs-xs: 0.75rem;    /* 12 */
+  --fs-kpi: 1.75rem;   /* 28 */
+
+  /* Line heights */
+  --lh-tight: 1.15;
+  --lh-snug: 1.25;
+  --lh-normal: 1.45;
+
+  /* Weights */
+  --fw-regular: 450;
+  --fw-medium: 550;
+  --fw-semibold: 650;
+  --fw-bold: 750;
+
+  /* Tracking */
+  --trk-tight: -0.01em;
+  --trk-wide: 0.08em;
+}
+
+/* Headings */
+.llt-h1{ font-size: var(--fs-h1); line-height: var(--lh-tight); font-weight: var(--fw-bold); letter-spacing: var(--trk-tight); }
+.llt-h2{ font-size: var(--fs-h2); line-height: var(--lh-snug); font-weight: var(--fw-semibold); letter-spacing: var(--trk-tight); }
+.llt-h3{ font-size: var(--fs-h3); line-height: var(--lh-snug); font-weight: var(--fw-semibold); }
+
+/* Body */
+.llt-body{ font-size: var(--fs-body); line-height: var(--lh-normal); font-weight: var(--fw-regular); }
+.llt-body-sm{ font-size: var(--fs-sm); line-height: var(--lh-normal); font-weight: var(--fw-regular); }
+.llt-caption{ font-size: var(--fs-xs); line-height: var(--lh-snug); font-weight: var(--fw-regular); }
+
+/* Labels / overlines */
+.llt-label{ font-size: var(--fs-sm); line-height: var(--lh-snug); font-weight: var(--fw-medium); }
+.llt-eyebrow{ font-size: var(--fs-xs); line-height: var(--lh-snug); font-weight: var(--fw-medium); letter-spacing: var(--trk-wide); text-transform: uppercase; }
+
+/* KPI / key numbers */
+.llt-kpi{ font-size: var(--fs-kpi); line-height: var(--lh-tight); font-weight: var(--fw-bold); letter-spacing: var(--trk-tight); }
+
+/* Rhythm helpers */
+.llt-stack-sm > * + *{ margin-top: var(--space-sm); }
+.llt-stack-md > * + *{ margin-top: var(--space-md); }
+.llt-stack-lg > * + *{ margin-top: var(--space-lg); }
+
+
+/* ==========================================
+   LONG LINE TRACKER – ALERT SYSTEM (SEMANTIC)
+   ========================================== */
+
+:root{
+  --alert-bg: hsl(var(--surface-1));
+  --alert-border: hsl(var(--border) / 0.70);
+  --alert-text: hsl(var(--foreground) / 0.90);
+
+  /* semantic accents (defaults; can be overridden per theme later) */
+  --alert-danger: var(--destructive);
+  --alert-success: var(--status-success);
+  --alert-info: var(--status-info);
+  --alert-warning: var(--status-warning);
+}
+
+.llt-alert{
+  background: var(--alert-bg);
+  border: 1px solid var(--alert-border);
+  color: var(--alert-text);
+  border-radius: var(--llt-radius-lg);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.llt-alert--danger{
+  border-color: hsl(var(--alert-danger) / 0.35);
+  box-shadow: 0 0 0 1px hsl(var(--alert-danger) / 0.18) inset;
+}
+
+.llt-alert--success{
+  border-color: hsl(var(--alert-success) / 0.30);
+  box-shadow: 0 0 0 1px hsl(var(--alert-success) / 0.16) inset;
+}
+
+.llt-alert--info{
+  border-color: hsl(var(--alert-info) / 0.30);
+  box-shadow: 0 0 0 1px hsl(var(--alert-info) / 0.16) inset;
+}
+
+.llt-alert--warning{
+  border-color: hsl(var(--alert-warning) / 0.30);
+  box-shadow: 0 0 0 1px hsl(var(--alert-warning) / 0.16) inset;
+}
+
+.llt-alert__title{ font-weight: var(--fw-semibold); }
+.llt-alert__text{ color: hsl(var(--foreground) / 0.82); }
+
+.llt-error-text{ color: hsl(var(--destructive) / 0.90); }
+
+
+/* ==========================================
+   LONG LINE TRACKER – DENSITY + RHYTHM UTILITIES
+   ========================================== */
+
+/* Padding */
+.llt-pad-xs { padding: var(--space-xs); }
+.llt-pad-sm { padding: var(--space-sm); }
+.llt-pad-md { padding: var(--space-md); }
+.llt-pad-lg { padding: var(--space-lg); }
+.llt-pad-xl { padding: var(--space-xl); }
+
+/* Horizontal + vertical padding */
+.llt-px-sm { padding-left: var(--space-sm); padding-right: var(--space-sm); }
+.llt-px-md { padding-left: var(--space-md); padding-right: var(--space-md); }
+.llt-px-lg { padding-left: var(--space-lg); padding-right: var(--space-lg); }
+
+.llt-py-sm { padding-top: var(--space-sm); padding-bottom: var(--space-sm); }
+.llt-py-md { padding-top: var(--space-md); padding-bottom: var(--space-md); }
+.llt-py-lg { padding-top: var(--space-lg); padding-bottom: var(--space-lg); }
+
+/* Gaps */
+.llt-gap-sm { gap: var(--space-sm); }
+.llt-gap-md { gap: var(--space-md); }
+.llt-gap-lg { gap: var(--space-lg); }
+
+/* Section spacing helpers */
+.llt-section-pad { padding: var(--space-lg); }
+.llt-card-pad { padding: var(--space-md); }
+
+
+/* ==========================================
+   LLT – IVORY-GOLD RECAL (HIERARCHY + CONTRAST)
+   Last-wins override to restore enterprise readability.
+   ========================================== */
+
+html[data-theme="ivory-gold"]:not(.dark){
+  /* Canvas */
+  --background: 0 0% 98%;
+  --foreground: 222 18% 15%;
+
+  /* Surfaces */
+  --card: 0 0% 100%;
+  --popover: 0 0% 100%;
+  --muted: 0 0% 96%;
+  --accent: 0 0% 94%;
+
+  /* Text */
+  --muted-foreground: 222 10% 38%;
+  --popover-foreground: 222 18% 15%;
+  --card-foreground: 222 18% 15%;
+  --accent-foreground: 222 18% 15%;
+
+  /* Structure */
+  --border: 0 0% 86%;
+  --input: 0 0% 86%;
+
+  /* Gold restraint (primary only) */
+  --primary: 42 93% 45%;
+  --primary-foreground: 0 0% 12%;
+  --ring: 42 93% 45%;
+
+  /* Destructive stays semantic */
+  --destructive: 0 74% 48%;
+  --destructive-foreground: 0 0% 98%;
+}
+
+
+/* ==========================================
+   LLT – DARK SURFACE LAYER REFINEMENT
+   ========================================== */
+
+.dark {
+  /* Lift base canvas slightly off pure black */
+  --background: 222 20% 8%;
+
+  /* Sidebar separation */
+  --muted: 222 20% 10%;
+
+  /* Cards slightly elevated */
+  --card: 222 18% 11%;
+  --popover: 222 18% 12%;
+
+  /* Improve contrast */
+  --foreground: 0 0% 92%;
+  --muted-foreground: 0 0% 62%;
+
+  /* Sharper borders */
+  --border: 222 15% 18%;
+  --input: 222 15% 18%;
+}
+
+/* Subtle radial content depth */
+.dark body {
+  background:
+    radial-gradient(1200px 800px at 60% 20%, rgba(212,175,55,0.04), transparent 60%),
+    hsl(var(--background));
+}
+
+
+/* ==========================================
+   LLT – PRIMARY KPI EMPHASIS
+   ========================================== */
+
+.llt-kpi-primary {
+  border-top: 2px solid hsl(var(--primary));
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.35),
+    0 0 0 1px hsl(var(--border));
+}
+
+.dark .llt-kpi-primary {
+  border-top: 2px solid hsl(var(--primary));
+  box-shadow:
+    0 14px 34px rgba(0,0,0,0.45),
+    0 0 0 1px hsl(var(--border));
+}
+
+
+/* ==========================================
+   LLT – KPI STATE EMPHASIS (DATA-DRIVEN)
+   ========================================== */
+
+.llt-kpi-state-danger{
+  border-top: 2px solid hsl(var(--destructive));
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.35),
+    0 0 0 1px hsl(var(--border)),
+    0 0 0 1px hsl(var(--destructive) / 0.22) inset;
+}
+
+.llt-kpi-state-warning{
+  border-top: 2px solid hsl(var(--status-warning));
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.35),
+    0 0 0 1px hsl(var(--border)),
+    0 0 0 1px hsl(var(--status-warning) / 0.18) inset;
+}
+
+.llt-kpi-state-info{
+  border-top: 2px solid hsl(var(--status-info));
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.35),
+    0 0 0 1px hsl(var(--border)),
+    0 0 0 1px hsl(var(--status-info) / 0.18) inset;
+}
+
+
+/* ==========================================
+   LLT – TOOL CARD STATUS BAR (SEMANTIC)
+   ========================================== */
+
+.llt-card-statusbar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.7);
+  border-top-left-radius: 0.85rem;
+  border-top-right-radius: 0.85rem;
+}
+
+.llt-card-statusbar__label{
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--trk-wide);
+  text-transform: uppercase;
+}
+
+.llt-card-statusbar--ok{
+  background: hsl(var(--status-success) / 0.12);
+  border-bottom-color: hsl(var(--status-success) / 0.22);
+}
+
+.llt-card-statusbar--out{
+  background: hsl(var(--destructive) / 0.12);
+  border-bottom-color: hsl(var(--destructive) / 0.22);
+}
+
+.llt-card-statusbar--repair{
+  background: hsl(var(--status-warning) / 0.12);
+  border-bottom-color: hsl(var(--status-warning) / 0.22);
+}
+
+.llt-card-statusbar--ok .llt-card-statusbar__label{
+  color: hsl(var(--status-success));
+}
+.llt-card-statusbar--out .llt-card-statusbar__label{
+  color: hsl(var(--destructive));
+}
+.llt-card-statusbar--repair .llt-card-statusbar__label{
+  color: hsl(var(--status-warning));
+}
+
+
+/* ==========================================
+   LLT – DARK INPUT CALIBRATION
+   ========================================== */
+
+.dark {
+  --input: 222 18% 14%;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background: hsl(var(--input));
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.8;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.35);
+}
 

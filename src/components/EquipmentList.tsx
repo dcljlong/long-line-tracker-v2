@@ -2,8 +2,10 @@
 import { useEquipment } from '@/context/EquipmentContext';
 import { useAuth } from '@/context/AuthContext';
 import { StatusBadge, TagBadge } from '@/components/ui/StatusBadge';
-import { computeTagState, computeStatus } from '@/types';
-import type { FilterTab, Equipment } from '@/types';
+import { computeTagState, computeStatus, normalizeEquipmentStatus } from '@/types';
+import type { FilterTab, Equipment, CanonicalEquipmentStatus } from '@/types';
+import { UI } from '@/lib/ui';
+import { getStatusConfig } from '@/lib/status-config';
 
 interface EquipmentListProps {
   onSelectEquipment: (id: string) => void;
@@ -13,8 +15,6 @@ interface EquipmentListProps {
 }
 
 const FILTER_TABS: FilterTab[] = ['All', 'Available', 'In Use', 'Overdue', 'Expired Tags', 'Due Soon'];
-import { UI } from '@/lib/ui';
-
 
 export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport, initialFilter }: EquipmentListProps) {
   const { filteredEquipment, searchQuery, setSearchQuery, activeFilter, setActiveFilter, stats, isLoading } = useEquipment();
@@ -179,64 +179,78 @@ function EquipmentCard({ equipment: eq, onClick, isAdmin }: { equipment: Equipme
   const status = computeStatus(eq);
   const tagState = computeTagState(eq);
 
+  const s: CanonicalEquipmentStatus = normalizeEquipmentStatus(status);
+  const cfg = getStatusConfig(s);
+
+  const headerClass = cfg.barClass;
+  const headerLabel = cfg.label;
+
   return (
     <button
       onClick={onClick}
-      className={`p-5 text-left group w-full ${UI.card} ${UI.cardHover}`}
+      className={`p-0 text-left group w-full ${UI.card} ${UI.cardHover}`}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-mono text-slate-400 bg-slate-900/40 px-1.5 py-0.5 rounded">{eq.asset_id}</span>
-            <span className="text-xs text-slate-400">{eq.category}</span>
-          </div>
-          <h3 className="text-sm font-semibold text-white truncate group-hover:text-amber-300 transition-colors">
-            {eq.name}
-          </h3>
-        </div>
-        <svg className="w-4 h-4 text-slate-500 group-hover:text-slate-400 flex-shrink-0 mt-1 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
+      <div className={`llt-card-statusbar ${headerClass}`}>
+        <span className="llt-card-statusbar__label">{headerLabel}</span>
       </div>
 
-      <div className="flex items-center gap-2 mb-3">
-        <StatusBadge status={status} />
-        <TagBadge state={tagState} />
-      </div>
-
-      {eq.test_tag_next_due && (
-        <p className="text-xs text-slate-400 mb-2">
-          Next test: {new Date(eq.test_tag_next_due).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
-        </p>
-      )}
-
-      {status !== 'Available' && eq.assigned_to && (
-        <div className="mt-3 pt-3 border-t border-white/10 space-y-1">
-          <div className="flex items-center gap-2 text-xs">
-            <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-            </svg>
-            <span className="text-slate-300 font-medium">{eq.assigned_to}</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
-            <span className="text-slate-400">{eq.assigned_site}</span>
-          </div>
-          {eq.expected_return_date && (
-            <div className="flex items-center gap-2 text-xs">
-              <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-              </svg>
-              <span className={`${new Date(eq.expected_return_date) < new Date() ? 'text-red-500 font-medium' : 'text-slate-400'}`}>
-                Due: {new Date(eq.expected_return_date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
-              </span>
+      <div className="llt-pad-md">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-mono text-muted-foreground bg-background/60 px-1.5 py-0.5 rounded">{eq.asset_id}</span>
+              <span className="text-xs text-muted-foreground">{eq.category}</span>
             </div>
-          )}
+            <h3 className="llt-h3 llt-text-strong truncate group-hover:opacity-90 transition-colors">
+              {eq.name}
+            </h3>
+          </div>
+          <svg className="w-4 h-4 text-muted-foreground/70 group-hover:text-muted-foreground flex-shrink-0 mt-1 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </div>
-      )}
+
+        <div className="flex items-center gap-2 mb-3">
+          <StatusBadge status={status} />
+          <TagBadge state={tagState} />
+        </div>
+
+        {eq.test_tag_next_due && (
+          <p className="text-xs text-muted-foreground mb-2">
+            Next test: {new Date(eq.test_tag_next_due).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </p>
+        )}
+
+        {status !== 'Available' && eq.assigned_to && (
+          <div className="mt-3 pt-3 border-t border-border/70 space-y-1">
+            <div className="flex items-center gap-2 text-xs">
+              <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              <span className="text-foreground/85 font-medium">{eq.assigned_to}</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3.75 0 11-6 0 3 3.75 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              <span className="text-muted-foreground">{eq.assigned_site}</span>
+            </div>
+
+            {eq.expected_return_date && (
+              <div className="flex items-center gap-2 text-xs">
+                <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                </svg>
+                <span className={`${new Date(eq.expected_return_date) < new Date() ? 'llt-error-text font-medium' : 'text-muted-foreground'}`}>
+                  Due: {new Date(eq.expected_return_date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </button>
   );
 }
@@ -292,7 +306,3 @@ function EquipmentTable({ equipment, onSelect, isAdmin }: { equipment: Equipment
     </div>
   );
 }
-
-
-
-

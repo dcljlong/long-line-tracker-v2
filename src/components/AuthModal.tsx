@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { UI } from '@/lib/ui';
 
@@ -44,7 +44,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className={`${UI.card} w-full max-w-md overflow-hidden`}>
-        <div className="px-6 py-5 bg-slate-900/60 text-white border-b border-white/10">
+        <div className="px-6 py-5 bg-background/70 text-white border-b border-border/70">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-bold">
@@ -64,7 +64,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {displayError && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-300 flex items-center gap-2">
+            <div className="llt-alert llt-alert--danger flex items-center gap-2 llt-body-sm">
               <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
               </svg>
@@ -74,7 +74,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-foreground/90 mb-1">Full Name</label>
               <input
                 type="text"
                 value={form.fullName}
@@ -86,7 +86,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-1">Email</label>
+            <label className="block text-sm font-medium text-foreground/90 mb-1">Email</label>
             <input
               type="email"
               value={form.email}
@@ -97,7 +97,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-1">Password</label>
+            <label className="block text-sm font-medium text-foreground/90 mb-1">Password</label>
             <input
               type="password"
               value={form.password}
@@ -109,7 +109,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1">Role</label>
+              <label className="block text-sm font-medium text-foreground/90 mb-1">Role</label>
               <select
                 value={form.role}
                 onChange={e => setForm(f => ({ ...f, role: e.target.value as any }))}
@@ -124,12 +124,12 @@ export default function AuthModal({ onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500 transition-colors disabled:opacity-50"
+            className="w-full px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary transition-colors disabled:opacity-50"
           >
             {isLoading ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
           </button>
 
-          <p className="text-center text-sm text-slate-400">
+          <p className="text-center text-sm text-muted-foreground">
             {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
             <button
               type="button"
@@ -144,6 +144,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     </div>
   );
 }
+
 
 
 

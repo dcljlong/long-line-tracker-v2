@@ -1,4 +1,4 @@
-ï»¿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { UI } from "@/lib/ui";
@@ -59,7 +59,7 @@ export default function ResetPassword() {
     return (
       <div className={`min-h-screen flex items-center justify-center ${UI.shell}`}>
         <div className={`${UI.card} ${UI.cardPad}`}>
-          <div className={`text-sm ${UI.textMuted}`}>Loadingâ€¦</div>
+          <div className={`llt-body-sm ${UI.textMuted}`}>Loading…</div>
         </div>
       </div>
     );
@@ -69,8 +69,8 @@ export default function ResetPassword() {
     return (
       <div className={`min-h-screen flex items-center justify-center p-6 ${UI.shell}`}>
         <div className={`${UI.card} ${UI.cardPad} max-w-md w-full`}>
-          <h1 className="text-xl font-semibold">Reset link expired or invalid</h1>
-          <p className={`text-sm mt-2 ${UI.textMuted}`}>
+          <h1 className="llt-h2">Reset link expired or invalid</h1>
+          <p className={`llt-body-sm mt-2 ${UI.textMuted}`}>
             Request a new password reset email and open it immediately.
           </p>
 
@@ -88,16 +88,16 @@ export default function ResetPassword() {
   return (
     <div className={`min-h-screen flex items-center justify-center p-6 ${UI.shell}`}>
       <form onSubmit={onSubmit} className={`${UI.card} ${UI.cardPad} max-w-md w-full space-y-4`}>
-        <h1 className="text-xl font-semibold">Set a new password</h1>
+        <h1 className="llt-h2">Set a new password</h1>
 
         {msg && (
-          <div className={`text-sm rounded-lg border ${UI.divider} bg-card/50 px-3 py-2`}>
+          <div className={`text-sm rounded-lg border ${UI.divider} llt-surface-2 px-3 py-2`}>
             {msg}
           </div>
         )}
 
         <div>
-          <label className={`block text-sm font-medium mb-1 ${UI.textSubtle}`}>New password</label>
+          <label className={`block llt-label mb-1 ${UI.textSubtle}`}>New password</label>
           <input
             type="password"
             value={pw1}
@@ -109,7 +109,7 @@ export default function ResetPassword() {
         </div>
 
         <div>
-          <label className={`block text-sm font-medium mb-1 ${UI.textSubtle}`}>Confirm new password</label>
+          <label className={`block llt-label mb-1 ${UI.textSubtle}`}>Confirm new password</label>
           <input
             type="password"
             value={pw2}
@@ -125,7 +125,7 @@ export default function ResetPassword() {
           disabled={busy}
           className="w-full px-4 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-95 transition-opacity disabled:opacity-50"
         >
-          {busy ? "Updatingâ€¦" : "Update password"}
+          {busy ? "Updating…" : "Update password"}
         </button>
       </form>
     </div>

@@ -1,131 +1,100 @@
-ï»¿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UI } from "@/lib/ui";
 import {
-  applyMode,
-  applyPalette,
-  getStoredMode,
-  getStoredPalette,
-  type ColorMode,
-  type PaletteTheme,
+  getThemeMode,
+  getThemePalette,
+  onThemeChange,
+  setThemeMode,
+  setThemePalette,
+  type ThemeMode,
+  type ThemePalette,
 } from "@/lib/theme";
 
-const PALETTES: { id: PaletteTheme; label: string }[] = [
-  { id: "default", label: "Default" },
-  { id: "forest", label: "Forest (Green)" },
-  { id: "ocean", label: "Ocean (Blue)" },
-  { id: "ember", label: "Ember (Amber)" },
-  { id: "slate", label: "Slate (Neutral)" },
-];
-
 export default function Settings() {
-  const [mode, setMode] = useState<ColorMode>("dark");
-  const [palette, setPalette] = useState<PaletteTheme>("default");
+  const [mode, setMode] = useState<ThemeMode>(() => getThemeMode());
+  const [palette, setPalette] = useState<ThemePalette>(() => getThemePalette());
 
   useEffect(() => {
-    setMode(getStoredMode());
-    setPalette(getStoredPalette());
+    const off = onThemeChange(() => {
+      setMode(getThemeMode());
+      setPalette(getThemePalette());
+    });
+    return () => off();
   }, []);
 
-  const onMode = (m: ColorMode) => {
-    setMode(m);
-    applyMode(m);
-  };
+  const ModeBtn = ({ v, label }: { v: ThemeMode; label: string }) => (
+    <button
+      type="button"
+      onClick={() => setThemeMode(v)}
+      className={`llt-px-md llt-py-sm rounded-lg text-sm font-medium border transition-colors ${
+        mode === v
+          ? "bg-amber-500/90 text-slate-950 border-amber-400/30"
+          : "border-white/10 llt-text-strong hover:bg-slate-900/30"
+      }`}
+    >
+      {label}
+    </button>
+  );
 
-  const onPalette = (p: PaletteTheme) => {
-    setPalette(p);
-    applyPalette(p);
-  };
-
-  const preview = useMemo(() => {
-    return (
-      <div className={`${UI.card} ${UI.cardPad} space-y-3`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-sm font-semibold">Preview</div>
-            <div className={`text-xs ${UI.textMuted}`}>Primary, accent, and sidebar brand tokens</div>
-          </div>
-          <span className="inline-flex items-center gap-2 text-xs">
-            <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-            <span className="text-muted-foreground">primary</span>
-          </span>
-        </div>
-
-        <div className="flex gap-2">
-          <button type="button" className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
-            Primary Action
-          </button>
-          <button type="button" className="px-3 py-2 rounded-lg bg-accent text-accent-foreground text-xs font-semibold">
-            Accent
-          </button>
-          <button type="button" className="px-3 py-2 rounded-lg border border-input text-xs font-semibold">
-            Outline
-          </button>
-        </div>
-      </div>
-    );
-  }, []);
+  const PaletteBtn = ({ v, label }: { v: ThemePalette; label: string }) => (
+    <button
+      type="button"
+      onClick={() => setThemePalette(v)}
+      className={`llt-px-md llt-py-sm rounded-lg text-sm font-medium border transition-colors ${
+        palette === v
+          ? "bg-amber-500/90 text-slate-950 border-amber-400/30"
+          : "border-white/10 llt-text-strong hover:bg-slate-900/30"
+      }`}
+    >
+      {label}
+    </button>
+  );
 
   return (
-    <div className={`min-h-[calc(100vh-56px)] p-4 md:p-6 ${UI.shell}`}>
-      <div className="max-w-3xl mx-auto space-y-4">
+    <div className={`${UI.shell} min-h-[calc(100vh-64px)]`}>
+      <div className="px-4 lg:px-6 py-6">
         <div className={`${UI.card} ${UI.cardPad}`}>
-          <div className="text-lg font-semibold">Settings</div>
-          <div className={`text-sm mt-1 ${UI.textMuted}`}>
-            Theme mode and colour palette are stored locally per browser.
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className={`${UI.card} ${UI.cardPad} space-y-3`}>
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-sm font-semibold">Mode</div>
-              <div className={`text-xs ${UI.textMuted}`}>Light/Dark</div>
+              <div className="llt-h2 llt-text-strong">Settings</div>
+              <div className={`llt-body-sm ${UI.textMuted}`}>Theme + appearance</div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => onMode("dark")}
-                className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                  mode === "dark" ? "bg-accent text-accent-foreground" : "border border-input text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Dark
-              </button>
-              <button
-                type="button"
-                onClick={() => onMode("light")}
-                className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                  mode === "light" ? "bg-accent text-accent-foreground" : "border border-input text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Light
-              </button>
+            <div className={`llt-caption ${UI.textMuted}`}>
+              Mode: <span className="llt-text-strong font-medium">{mode}</span> · Palette:{" "}
+              <span className="llt-text-strong font-medium">{palette}</span>
             </div>
           </div>
 
-          <div className={`${UI.card} ${UI.cardPad} space-y-3`}>
+          <div className="mt-6 grid gap-6">
             <div>
-              <div className="text-sm font-semibold">Palette</div>
-              <div className={`text-xs ${UI.textMuted}`}>Primary / ring / sidebar brand</div>
+              <div className="llt-label llt-text-strong mb-2">Light / Dark</div>
+              <div className="flex flex-wrap gap-2">
+                <ModeBtn v="dark" label="Dark" />
+                <ModeBtn v="light" label="Light" />
+              </div>
             </div>
 
-            <select
-              className={`w-full px-3 py-2.5 rounded-lg text-sm border ${UI.input}`}
-              value={palette}
-              onChange={(e) => onPalette(e.target.value as PaletteTheme)}
-            >
-              {PALETTES.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
+            <div>
+              <div className="llt-label llt-text-strong mb-2">Theme palette</div>
+              <div className="flex flex-wrap gap-2">
+                <PaletteBtn v="slate" label="Slate" />
+                <PaletteBtn v="forest" label="Forest" />
+                <PaletteBtn v="ocean" label="Ocean" />
+                <PaletteBtn v="ember" label="Ember" />
+                <PaletteBtn v="ivory-gold" label="Ivory & Gold" />
+                <PaletteBtn v="elite-gold" label="Elite Gold" />
+              </div>
+              <div className={`mt-2 text-xs ${UI.textMuted}`}>
+                (Palette requires index.css to define [data-theme] tokens. Mode always works.)
+              </div>
+            </div>
           </div>
-        </div>
 
-        {preview}
+        </div>
       </div>
     </div>
   );
 }
+
+
+

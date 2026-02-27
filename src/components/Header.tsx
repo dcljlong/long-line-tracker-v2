@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { UI } from "@/lib/ui";
 
@@ -20,7 +20,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
   };
 
   return (
-    <header className="sticky top-0 z-20 bg-background/75 backdrop-blur-xl border-b border-border/60">
+    <header className="sticky top-0 z-20 llt-nav-shell">
       <div className="px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
 
         {/* LEFT */}
@@ -31,7 +31,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
             type="button"
             aria-label="Open menu"
             onClick={() => onToggleSidebar?.()}
-            className="lg:hidden inline-flex items-center justify-center rounded-lg border border-input bg-card/60 p-2 text-foreground/80 hover:bg-card transition-colors"
+            className="lg:hidden inline-flex items-center justify-center rounded-lg border border-input llt-surface-2 p-2 text-foreground/80 llt-nav-item"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -82,7 +82,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
             <button
               type="button"
               onClick={() => setShowUserMenu((v) => !v)}
-              className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent transition-colors"
+              className="flex items-center gap-2 rounded-lg px-2 py-1.5 llt-nav-item"
             >
               <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-sm font-semibold">
                 {user?.full_name?.charAt(0) || "U"}
@@ -95,7 +95,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
             {showUserMenu && (
               <>
                 <div className="fixed inset-0 z-30" onClick={() => setShowUserMenu(false)} />
-                <div className="absolute right-0 mt-2 w-56 z-40 overflow-hidden rounded-xl border border-border/60 bg-popover text-popover-foreground shadow-xl">
+                <div className="absolute right-0 mt-2 w-56 z-40 overflow-hidden rounded-xl border border-border/60 llt-overlay-panel text-popover-foreground ">
                   <div className={`px-4 py-3 border-b ${UI.divider}`}>
                     <p className="text-sm font-medium">{user?.full_name}</p>
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
@@ -104,7 +104,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
                   <button
                     type="button"
                     onClick={() => { onOpenAuth(); setShowUserMenu(false); }}
-                    className="w-full text-left px-4 py-2 text-sm hover:bg-accent transition-colors"
+                    className="w-full text-left px-4 py-2 text-sm llt-nav-item"
                   >
                     Account
                   </button>
@@ -126,3 +126,5 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
     </header>
   );
 }
+
+

@@ -10,7 +10,18 @@ export interface UserProfile {
 }
 
 export type EquipmentCondition = 'New' | 'Good' | 'Fair' | 'Poor' | 'Damaged';
-export type EquipmentStatus = 'Available' | 'In Use' | 'Overdue' | 'Maintenance';
+
+/**
+ * Canonical equipment statuses for UI + StatusConfig.
+ */
+export type CanonicalEquipmentStatus = 'Available' | 'In Use' | 'Overdue' | 'Expired' | 'Repair';
+
+/**
+ * EquipmentStatus includes legacy values that may exist in stored data.
+ * - 'Maintenance' is treated as legacy alias of canonical 'Repair'.
+ */
+export type EquipmentStatus = CanonicalEquipmentStatus | 'Maintenance';
+
 export type TagState = 'OK' | 'Due Soon' | 'Expired' | 'No Tag';
 export type MovementEventType = 'check_out' | 'return';
 
@@ -73,9 +84,20 @@ export function computeTagState(equipment: Equipment): TagState {
   return 'OK';
 }
 
-export function computeStatus(equipment: Equipment): EquipmentStatus {
-  if (equipment.current_status === 'Maintenance') return 'Maintenance';
-  if (equipment.current_status === 'In Use') {
+/**
+ * Normalize any legacy/alias status to canonical StatusConfig keys.
+ */
+export function normalizeEquipmentStatus(status: EquipmentStatus): CanonicalEquipmentStatus {
+  if (status === 'Maintenance') return 'Repair';
+  return status;
+}
+
+export function computeStatus(equipment: Equipment): CanonicalEquipmentStatus {
+  const base = normalizeEquipmentStatus(equipment.current_status);
+
+  if (base === 'Repair' || base === 'Expired' || base === 'Overdue') return base;
+
+  if (base === 'In Use') {
     if (equipment.expected_return_date) {
       const now = new Date();
       const returnDate = new Date(equipment.expected_return_date);
@@ -83,6 +105,7 @@ export function computeStatus(equipment: Equipment): EquipmentStatus {
     }
     return 'In Use';
   }
+
   return 'Available';
 }
 
@@ -91,9 +114,9 @@ export function getTagStateColor(state: TagState): { bg: string; text: string; b
   // Avoid light-only palette classes (bg-*-50 etc).
   switch (state) {
     case 'OK':
-      return { bg: 'bg-card/60', text: 'text-emerald-400', border: 'border-emerald-500/25' };
+      return { bg: 'bg-card/60', text: 'llt-text-success', border: 'llt-border-success' };
     case 'Due Soon':
-      return { bg: 'bg-card/60', text: 'text-amber-400', border: 'border-amber-500/25' };
+      return { bg: 'bg-card/60', text: 'llt-text-warning', border: 'llt-border-warning' };
     case 'Expired':
       return { bg: 'bg-card/60', text: 'text-destructive', border: 'border-destructive/35' };
     case 'No Tag':
@@ -101,19 +124,6 @@ export function getTagStateColor(state: TagState): { bg: string; text: string; b
   }
 }
 
-export function getStatusColor(status: EquipmentStatus): { bg: string; text: string; dot: string } {
-  // Token-driven surfaces; hue only for dot + label emphasis.
-  switch (status) {
-    case 'Available':
-      return { bg: 'bg-card/60', text: 'text-emerald-400', dot: 'bg-emerald-500' };
-    case 'In Use':
-      return { bg: 'bg-card/60', text: 'text-sky-400', dot: 'bg-sky-500' };
-    case 'Overdue':
-      return { bg: 'bg-card/60', text: 'text-destructive', dot: 'bg-destructive' };
-    case 'Maintenance':
-      return { bg: 'bg-card/60', text: 'text-orange-400', dot: 'bg-orange-500' };
-  }
-}
 
 export const CATEGORIES = [
   'Power Tools',

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 import type { Equipment, EquipmentCondition } from '@/types';
 import { CATEGORIES } from '@/types';
@@ -13,7 +13,7 @@ interface EquipmentFormProps {
 const CONDITIONS: EquipmentCondition[] = ['New', 'Good', 'Fair', 'Poor', 'Damaged'];
 
 export default function EquipmentForm({ equipment, onClose, onSuccess }: EquipmentFormProps) {
-  const { createEquipment, updateEquipment } = useEquipment();
+  const { createEquipment, updateEquipment, error: equipmentError } = useEquipment();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -100,7 +100,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
 
         const result = await createEquipment(payload);
         if (result) onSuccess();
-        else setSubmitError('Create failed. Check console/network and try again.');
+        else setSubmitError(equipmentError ? ('Create failed: ' + equipmentError) : 'Create failed. Check console/network and try again.');
       }
     } catch (err: any) {
       console.error('Equipment form error:', err);
@@ -118,7 +118,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
             {isEdit ? 'Edit Equipment' : 'Add New Equipment'}
           </h3>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-            <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -126,15 +126,15 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {submitError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="llt-alert llt-alert--danger llt-body-sm px-4 py-3">
               {submitError}
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1">
-                Asset ID <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/90 mb-1">
+                Asset ID <span className="llt-error-text">*</span>
               </label>
               <input
                 type="text"
@@ -143,15 +143,15 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
                 placeholder="e.g., TT-0025"
                 disabled={isEdit}
                 className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border- ${
-                  errors.asset_id ? 'border-red-500/40 bg-red-500/10' : 'border-white/10'
-                } ${isEdit ? 'bg-slate-900/40 text-slate-400' : ''}`}
+                  errors.asset_id ? 'border-destructive/40 bg-destructive/10' : 'border-border/70'
+                } ${isEdit ? 'bg-background/60 text-muted-foreground' : ''}`}
               />
-              {errors.asset_id && <p className="text-xs text-red-500 mt-1">{errors.asset_id}</p>}
+              {errors.asset_id && <p className="text-xs llt-error-text mt-1">{errors.asset_id}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1">
-                Category <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground/90 mb-1">
+                Category <span className="llt-error-text">*</span>
               </label>
               <select
                 value={form.category}
@@ -166,8 +166,8 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-1">
-              Equipment Name <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-foreground/90 mb-1">
+              Equipment Name <span className="llt-error-text">*</span>
             </label>
             <input
               type="text"
@@ -175,14 +175,14 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder="e.g., Hilti TE 70-ATC Rotary Hammer"
               className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border- ${
-                errors.name ? 'border-red-500/40 bg-red-500/10' : 'border-white/10'
+                errors.name ? 'border-destructive/40 bg-destructive/10' : 'border-border/70'
               }`}
             />
-            {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+            {errors.name && <p className="text-xs llt-error-text mt-1">{errors.name}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-1">Condition</label>
+            <label className="block text-sm font-medium text-foreground/90 mb-1">Condition</label>
             <div className="flex gap-2 flex-wrap">
               {CONDITIONS.map(cond => (
                 <button
@@ -191,8 +191,8 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
                   onClick={() => setForm(f => ({ ...f, condition: cond }))}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                     form.condition === cond
-                      ? 'bg-amber-500/15 text-amber-200 ring-1 ring-amber-400/20 border-transparent'
-                      : 'border-white/10 text-slate-300 hover:border-white/20'
+                      ? 'bg-primary/15 text-primary ring-1 ring-amber-400/20 border-transparent'
+                      : 'border-border/70 text-foreground/85 hover:border-white/20'
                   }`}
                 >
                   {cond}
@@ -202,13 +202,13 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-1">Notes (local only for now)</label>
+            <label className="block text-sm font-medium text-foreground/90 mb-1">Notes (local only for now)</label>
             <textarea
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               rows={2}
               placeholder="Equipment description or notes..."
-              className="w-full px-3 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border- resize-none"
+              className="w-full px-3 py-2.5 border border-border/70 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border- resize-none"
             />
           </div>
 
@@ -216,7 +216,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
             <h4 className="text-sm font-semibold text-white mb-3">Test & Tag Compliance</h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-200 mb-1">Last Test Date</label>
+                <label className="block text-sm font-medium text-foreground/90 mb-1">Last Test Date</label>
                 <input
                   type="date"
                   value={form.test_tag_done_date}
@@ -225,7 +225,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-200 mb-1">Next Due Date</label>
+                <label className="block text-sm font-medium text-foreground/90 mb-1">Next Due Date</label>
                 <input
                   type="date"
                   value={form.test_tag_next_due}
@@ -236,7 +236,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
             </div>
 
             <div className="mt-3">
-              <label className="block text-sm font-medium text-slate-200 mb-1">
+              <label className="block text-sm font-medium text-foreground/90 mb-1">
                 Due Soon Threshold (days) (local only for now)
               </label>
               <input
@@ -245,7 +245,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
                 onChange={e => setForm(f => ({ ...f, tag_threshold_days: parseInt(e.target.value) || 30 }))}
                 min={1}
                 max={365}
-                className="w-32 px-3 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border-"
+                className="w-32 px-3 py-2.5 border border-border/70 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-/20 focus:border-"
               />
             </div>
           </div>
@@ -254,14 +254,14 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 border border-white/10 rounded-lg text-sm font-medium text-slate-200 hover:bg-slate-900/40 transition-colors"
+              className="flex-1 px-4 py-2.5 border border-border/70 rounded-lg text-sm font-medium text-foreground/90 hover:bg-background/60 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2.5 bg-amber-500/90 text-slate-950 rounded-lg text-sm font-semibold hover:bg-amber-500 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary transition-colors disabled:opacity-50"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">
@@ -281,5 +281,6 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
     </div>
   );
 }
+
 
 

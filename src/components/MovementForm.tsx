@@ -93,10 +93,10 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
             <h3 className={`text-lg font-bold ${isCheckOut ? 'text-blue-900' : 'text-emerald-900'}`}>
               {isCheckOut ? 'Check Out Equipment' : 'Return Equipment'}
             </h3>
-            <p className="text-sm text-slate-300 mt-0.5">{equipmentName}</p>
+            <p className="text-sm text-foreground/85 mt-0.5">{equipmentName}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-            <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -106,7 +106,7 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
           {isCheckOut && (
             <>
               <div>
-                <label className="block text-sm font-medium text-slate-200 mb-1">
+                <label className="block text-sm font-medium text-foreground/90 mb-1">
                   Assigned To <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -115,14 +115,14 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
                   onChange={e => setForm(f => ({ ...f, assigned_to: e.target.value }))}
                   placeholder="Person name"
                   className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2  ${
-                    errors.assigned_to ? 'border-red-500/40 bg-red-500/10' : 'border-white/10'
+                    errors.assigned_to ? 'border-red-500/40 bg-red-500/10' : 'border-border/70'
                   }`}
                 />
                 {errors.assigned_to && <p className="text-xs text-red-500 mt-1">{errors.assigned_to}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-200 mb-1">
+                <label className="block text-sm font-medium text-foreground/90 mb-1">
                   Site <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -131,65 +131,65 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
                   onChange={e => setForm(f => ({ ...f, site: e.target.value }))}
                   placeholder="Site name or location"
                   className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2  ${
-                    errors.site ? 'border-red-500/40 bg-red-500/10' : 'border-white/10'
+                    errors.site ? 'border-red-500/40 bg-red-500/10' : 'border-border/70'
                   }`}
                 />
                 {errors.site && <p className="text-xs text-red-500 mt-1">{errors.site}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-200 mb-1">Job Reference</label>
+                <label className="block text-sm font-medium text-foreground/90 mb-1">Job Reference</label>
                 <input
                   type="text"
                   value={form.job_reference}
                   onChange={e => setForm(f => ({ ...f, job_reference: e.target.value }))}
                   placeholder="e.g., JOB-2024-001"
-                  className="w-full px-3 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 "
+                  className="w-full px-3 py-2.5 border border-border/70 rounded-lg text-sm focus:outline-none focus:ring-2 "
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-200 mb-1">Expected Return Date</label>
+                <label className="block text-sm font-medium text-foreground/90 mb-1">Expected Return Date</label>
                 <input
                   type="date"
                   value={form.expected_return_date}
                   onChange={e => setForm(f => ({ ...f, expected_return_date: e.target.value }))}
-                  className="w-full px-3 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 "
+                  className="w-full px-3 py-2.5 border border-border/70 rounded-lg text-sm focus:outline-none focus:ring-2 "
                 />
               </div>
             </>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-foreground/90 mb-1">Notes</label>
             <textarea
               value={form.notes}
               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               rows={3}
               placeholder="Add any relevant notes..."
-              className="w-full px-3 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2  resize-none"
+              className="w-full px-3 py-2.5 border border-border/70 rounded-lg text-sm focus:outline-none focus:ring-2  resize-none"
             />
           </div>
 
           {/* Photo Upload */}
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-1">
+            <label className="block text-sm font-medium text-foreground/90 mb-1">
               {isCheckOut ? 'Pickup Photo' : 'Return Photo'}
             </label>
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-white/10 rounded-lg p-4 text-center cursor-pointer hover:border-white/20 transition-colors"
+              className="border-2 border-dashed border-border/70 rounded-lg p-4 text-center cursor-pointer hover:border-white/20 transition-colors"
             >
               {photoFile ? (
                 <div className="flex items-center justify-center gap-2">
                   <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="text-sm text-slate-200">{photoFile.name}</span>
+                  <span className="text-sm text-foreground/90">{photoFile.name}</span>
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setPhotoFile(null); }}
-                    className="text-slate-400 hover:text-red-500"
+                    className="text-muted-foreground hover:text-red-500"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -202,7 +202,7 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
                   </svg>
-                  <p className="text-xs text-slate-400">Click to upload photo</p>
+                  <p className="text-xs text-muted-foreground">Click to upload photo</p>
                 </>
               )}
             </div>
@@ -220,7 +220,7 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 border border-white/10 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/5 transition-colors"
+              className="flex-1 px-4 py-2.5 border border-border/70 rounded-lg text-sm font-medium text-foreground/90 hover:bg-white/5 transition-colors"
             >
               Cancel
             </button>
@@ -229,7 +229,7 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
               disabled={isSubmitting}
               className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors disabled:opacity-50 ${
                 isCheckOut
-                  ? 'bg-amber-500/90 hover:bg-amber-500 text-slate-950 font-semibold'
+                  ? 'bg-primary hover:bg-primary text-primary-foreground font-semibold'
                   : 'bg-emerald-600 hover:bg-emerald-700'
               }`}
             >
@@ -251,4 +251,5 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
     </div>
   );
 }
+
 

@@ -42,12 +42,32 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
         </svg>
       ),
     },
+  ,
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M11.983 5.25c.425-1.06 1.608-1.06 2.033 0l.314.783a1.125 1.125 0 001.1.72h.823c1.14 0 1.616 1.454.708 2.121l-.666.49a1.125 1.125 0 00-.41 1.257l.254.83c.338 1.104-.9 2.02-1.847 1.364l-.686-.5a1.125 1.125 0 00-1.32 0l-.686.5c-.947.656-2.185-.26-1.847-1.364l.254-.83a1.125 1.125 0 00-.41-1.257l-.666-.49c-.908-.667-.432-2.12.708-2.12h.823a1.125 1.125 0 001.1-.72l.314-.784z" />
+        </svg>
+      ),
+    }
   ];
 
   const alertItems = [
     { label: "Overdue", count: stats.overdue, dot: "bg-destructive" },
     { label: "Expired Tags", count: stats.expiredTags, dot: "bg-destructive" },
-    { label: "Due Soon", count: stats.dueSoon, dot: "bg-amber-500" },
+    { label: "Due Soon", count: stats.dueSoon, dot: "bg-primary" },
+  ,
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M11.983 5.25c.425-1.06 1.608-1.06 2.033 0l.314.783a1.125 1.125 0 001.1.72h.823c1.14 0 1.616 1.454.708 2.121l-.666.49a1.125 1.125 0 00-.41 1.257l.254.83c.338 1.104-.9 2.02-1.847 1.364l-.686-.5a1.125 1.125 0 00-1.32 0l-.686.5c-.947.656-2.185-.26-1.847-1.364l.254-.83a1.125 1.125 0 00-.41-1.257l-.666-.49c-.908-.667-.432-2.12.708-2.12h.823a1.125 1.125 0 001.1-.72l.314-.784z" />
+        </svg>
+      ),
+    }
   ];
 
   const isActive = (id: string) => currentView === id || (id === "equipment" && currentView === "detail");
@@ -141,3 +161,5 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
     </aside>
   );
 }
+
+

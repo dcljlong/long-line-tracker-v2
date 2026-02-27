@@ -9,6 +9,7 @@ import Toast from '@/components/Toast';
 
 import { UI } from '@/lib/ui';
 import type { MovementEventType } from '@/types';
+import Settings from "@/pages/Settings";
 
 const Dashboard = lazy(() => import('@/components/Dashboard'));
 const EquipmentList = lazy(() => import('@/components/EquipmentList'));
@@ -158,7 +159,9 @@ function AppContent() {
                   onMovement={handleMovement}
                 />
               )}
-            </Suspense>
+            
+              {currentView === 'settings' && <Settings />}
+</Suspense>
           </div>
         </div>
       </div>
@@ -209,6 +212,11 @@ export default function AppLayout() {
     </AuthProvider>
   );
 }
+
+
+
+
+
 
 
 

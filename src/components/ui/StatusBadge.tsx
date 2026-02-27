@@ -1,13 +1,25 @@
 ﻿import React from 'react';
-import type { EquipmentStatus, TagState } from '@/types';
-import { getStatusColor, getTagStateColor } from '@/types';
+import type { EquipmentStatus, TagState, CanonicalEquipmentStatus } from '@/types';
+import { getTagStateColor, normalizeEquipmentStatus } from '@/types';
+import { getStatusConfig } from '@/lib/status-config';
 
 export function StatusBadge({ status }: { status: EquipmentStatus }) {
-  const colors = getStatusColor(status);
+  const s: CanonicalEquipmentStatus = normalizeEquipmentStatus(status);
+  const cfg = getStatusConfig(s);
+
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${colors.bg} ${colors.text}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
-      {status}
+    <span
+      className={[
+        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold',
+        'bg-card/60',
+        cfg.badgeClass,
+        cfg.textClass,
+      ].join(' ')}
+      aria-label={`Status: ${cfg.label}`}
+      title={cfg.label}
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+      {cfg.label}
     </span>
   );
 }
@@ -50,4 +62,3 @@ export function ConditionBadge({ condition }: { condition: string }) {
     </span>
   );
 }
-

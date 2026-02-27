@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import type { Equipment, Movement, FilterTab, DashboardStats, EquipmentStatus } from '@/types';
+import type { Equipment, Movement, FilterTab, DashboardStats } from '@/types';
 import { computeTagState, computeStatus } from '@/types';
 
 interface EquipmentContextType {
@@ -38,8 +38,13 @@ function fuzzyMatch(text: string, query: string): boolean {
   return qi === lowerQuery.length;
 }
 
+type EnrichedEquipment = Equipment & {
+  _derived_status: ReturnType<typeof computeStatus>;
+  _derived_tag: ReturnType<typeof computeTagState>;
+};
+
 export function EquipmentProvider({ children }: { children: React.ReactNode }) {
-  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [equipment, setEquipment] = useState<EnrichedEquipment[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,11 +69,17 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
       if (eqRes.error) throw eqRes.error;
       if (mvRes.error) throw mvRes.error;
 
-      // Compute real statuses based on dates
-      const enriched = (eqRes.data || []).map((eq: Equipment) => ({
-        ...eq,
-        current_status: computeStatus(eq),
-      }));
+      const enriched: EnrichedEquipment[] = (eqRes.data || []).map((eq: Equipment) => {
+        const derivedStatus = computeStatus(eq);
+        const derivedTag = computeTagState(eq);
+        return {
+          ...eq,
+          // keep existing current_status field consistent with derived status (canonical)
+          current_status: derivedStatus as any,
+          _derived_status: derivedStatus,
+          _derived_tag: derivedTag,
+        };
+      });
 
       setEquipment(enriched);
       setMovements(mvRes.data || []);
@@ -91,11 +102,11 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
     const s: DashboardStats = { total: 0, available: 0, inUse: 0, overdue: 0, expiredTags: 0, dueSoon: 0 };
     equipment.forEach(eq => {
       s.total++;
-      const status = computeStatus(eq);
+      const status = eq._derived_status;
       if (status === 'Available') s.available++;
       if (status === 'In Use') s.inUse++;
       if (status === 'Overdue') s.overdue++;
-      const tag = computeTagState(eq);
+      const tag = eq._derived_tag;
       if (tag === 'Expired') s.expiredTags++;
       if (tag === 'Due Soon') s.dueSoon++;
     });
@@ -103,24 +114,24 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
   }, [equipment]);
 
   const filteredEquipment = useMemo(() => {
-    let result = equipment;
+    let result: EnrichedEquipment[] = equipment;
 
-    // Apply filter tab
+    // Apply filter tab (reuse derived values; no recompute)
     switch (activeFilter) {
       case 'Available':
-        result = result.filter(eq => computeStatus(eq) === 'Available');
+        result = result.filter(eq => eq._derived_status === 'Available');
         break;
       case 'In Use':
-        result = result.filter(eq => computeStatus(eq) === 'In Use');
+        result = result.filter(eq => eq._derived_status === 'In Use');
         break;
       case 'Overdue':
-        result = result.filter(eq => computeStatus(eq) === 'Overdue');
+        result = result.filter(eq => eq._derived_status === 'Overdue');
         break;
       case 'Expired Tags':
-        result = result.filter(eq => computeTagState(eq) === 'Expired');
+        result = result.filter(eq => eq._derived_tag === 'Expired');
         break;
       case 'Due Soon':
-        result = result.filter(eq => computeTagState(eq) === 'Due Soon');
+        result = result.filter(eq => eq._derived_tag === 'Due Soon');
         break;
     }
 
@@ -163,7 +174,8 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
       await fetchData();
       return result;
     } catch (e: any) {
-      setError(e.message);
+      console.error('[createEquipment] failed', e);
+      setError(e?.message || 'Create failed');
       return null;
     }
   }, [fetchData]);
@@ -229,7 +241,8 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
       const { data } = supabase.storage.from('equipment-photos').getPublicUrl(path);
       return data.publicUrl;
     } catch (e: any) {
-      setError(e.message);
+      console.error('[createEquipment] failed', e);
+      setError(e?.message || 'Create failed');
       return null;
     }
   }, []);
