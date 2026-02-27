@@ -99,13 +99,14 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
   }, [fetchData]);
 
   const stats = useMemo<DashboardStats>(() => {
-    const s: DashboardStats = { total: 0, available: 0, inUse: 0, overdue: 0, expiredTags: 0, dueSoon: 0 };
+    const s: DashboardStats = { total: 0, available: 0, inUse: 0, overdue: 0, repair: 0, expiredTags: 0, dueSoon: 0 };
     equipment.forEach(eq => {
       s.total++;
       const status = eq._derived_status;
       if (status === 'Available') s.available++;
       if (status === 'In Use') s.inUse++;
       if (status === 'Overdue') s.overdue++;
+      if (status === 'Repair') s.repair++;
       const tag = eq._derived_tag;
       if (tag === 'Expired') s.expiredTags++;
       if (tag === 'Due Soon') s.dueSoon++;
@@ -127,6 +128,10 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
       case 'Overdue':
         result = result.filter(eq => eq._derived_status === 'Overdue');
         break;
+      case 'Repair':
+case 'Maintenance':
+  result = result.filter(eq => eq._derived_status === 'Repair');
+  break;
       case 'Expired Tags':
         result = result.filter(eq => eq._derived_tag === 'Expired');
         break;
@@ -209,7 +214,11 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
         eqUpdate.assigned_job = data.job_reference || '';
         eqUpdate.expected_return_date = data.expected_return_date || null;
       } else if (data.event_type === 'return') {
-        eqUpdate.current_status = 'Available';
+        // On return: clear assignment, and optionally flag for maintenance/repair
+        const requiresService = Boolean((data as any).requires_service);
+        const requiresRepair = Boolean((data as any).requires_repair);
+
+        eqUpdate.current_status = (requiresService || requiresRepair) ? 'Maintenance' : 'Available';
         eqUpdate.assigned_to = '';
         eqUpdate.assigned_site = '';
         eqUpdate.assigned_job = '';
@@ -266,3 +275,7 @@ export function useEquipment() {
   if (!ctx) throw new Error('useEquipment must be used within EquipmentProvider');
   return ctx;
 }
+
+
+
+

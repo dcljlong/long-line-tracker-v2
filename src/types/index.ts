@@ -9,7 +9,7 @@ export interface UserProfile {
   created_at: string;
 }
 
-export type EquipmentCondition = 'New' | 'Good' | 'Fair' | 'Poor' | 'Damaged';
+export type EquipmentCondition = 'New' | 'Good' | 'Fair' | 'Poor' | 'Damaged' | 'Not Working';
 
 /**
  * Canonical equipment statuses for UI + StatusConfig.
@@ -48,6 +48,12 @@ export interface Equipment {
 }
 
 export interface Movement {
+  // --- Return workflow extensions ---
+  return_condition?: EquipmentCondition;
+  has_new_issues?: boolean;
+  issue_description?: string;
+  requires_service?: boolean;
+  requires_repair?: boolean;
   id: string;
   equipment_id: string;
   event_type: MovementEventType;
@@ -63,13 +69,14 @@ export interface Movement {
   created_at: string;
 }
 
-export type FilterTab = 'All' | 'Available' | 'In Use' | 'Overdue' | 'Expired Tags' | 'Due Soon';
+export type FilterTab = 'All' | 'Available' | 'In Use' | 'Overdue' | 'Repair' | 'Expired Tags' | 'Due Soon';
 
 export interface DashboardStats {
   total: number;
   available: number;
   inUse: number;
   overdue: number;
+  repair: number;
   expiredTags: number;
   dueSoon: number;
 }
@@ -139,4 +146,8 @@ export const CATEGORIES = [
   'Safety Equipment',
   'Hand Tools',
 ];
+
+
+
+
 

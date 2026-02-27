@@ -14,7 +14,12 @@ interface EquipmentListProps {
   initialFilter?: string;
 }
 
-const FILTER_TABS: FilterTab[] = ['All', 'Available', 'In Use', 'Overdue', 'Expired Tags', 'Due Soon'];
+const FILTER_TABS: FilterTab[] = ['All', 'Available', 'In Use', 'Overdue', 'Repair', 'Expired Tags', 'Due Soon'];
+
+
+function filterTabLabel(t: FilterTab): string {
+  return t === 'Repair' ? 'Maintenance' : t;
+}
 
 export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport, initialFilter }: EquipmentListProps) {
   const { filteredEquipment, searchQuery, setSearchQuery, activeFilter, setActiveFilter, stats, isLoading } = useEquipment();
@@ -33,6 +38,7 @@ export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport
     'Available': stats.available,
     'In Use': stats.inUse,
     'Overdue': stats.overdue,
+    'Repair': (stats as any).repair,
     'Expired Tags': stats.expiredTags,
     'Due Soon': stats.dueSoon,
   };
@@ -117,7 +123,7 @@ export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport
         <div className="flex items-center gap-1 overflow-x-auto pb-1">
           {FILTER_TABS.map(tab => (
             <button
-              key={tab}
+              key={filterTabLabel(tab)}
               onClick={() => setActiveFilter(tab)}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                 activeFilter === tab
@@ -125,7 +131,7 @@ export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/30'
               }`}
             >
-              {tab}
+              {filterTabLabel(tab)}
               <span className={`ml-1.5 text-xs ${activeFilter === tab ? 'text-white/70' : 'text-slate-400'}`}>
                 {filterCounts[tab]}
               </span>
@@ -306,3 +312,6 @@ function EquipmentTable({ equipment, onSelect, isAdmin }: { equipment: Equipment
     </div>
   );
 }
+
+
+

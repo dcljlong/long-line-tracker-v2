@@ -1,7 +1,7 @@
 ﻿import React, { useState, useRef } from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 import { useAuth } from '@/context/AuthContext';
-import type { MovementEventType } from '@/types';
+import type { MovementEventType, EquipmentCondition } from '@/types';
 import { UI } from '@/lib/ui';
 
 interface MovementFormProps {
@@ -12,12 +12,19 @@ interface MovementFormProps {
   onSuccess: () => void;
 }
 
+const CONDITIONS: EquipmentCondition[] = ['New', 'Good', 'Fair', 'Poor', 'Damaged', 'Not Working'];
+
+type ServiceRepairChoice = 'none' | 'service' | 'repair';
+
 export default function MovementForm({ equipmentId, equipmentName, eventType, onClose, onSuccess }: MovementFormProps) {
-  const { createMovement, uploadPhoto } = useEquipment();
+  const { createMovement, uploadPhoto, error: equipmentError } = useEquipment();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isCheckOut = eventType === 'check_out';
 
   const [form, setForm] = useState({
     assigned_to: '',
@@ -25,15 +32,29 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
     job_reference: '',
     notes: '',
     expected_return_date: '',
+    // return extensions
+    return_condition: '' as '' | EquipmentCondition,
+    has_new_issues: '' as '' | 'no' | 'yes',
+    issue_description: '',
+    service_repair: 'none' as ServiceRepairChoice,
   });
+
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
-    if (eventType === 'check_out') {
+
+    if (isCheckOut) {
       if (!form.assigned_to.trim()) errs.assigned_to = 'Assigned to is required for check-out';
       if (!form.site.trim()) errs.site = 'Site is required for check-out';
+    } else {
+      if (!form.return_condition) errs.return_condition = 'Return condition is required';
+      if (!form.has_new_issues) errs.has_new_issues = 'Please confirm if there are any new issues';
+      if (form.has_new_issues === 'yes') {
+        if (!form.issue_description.trim()) errs.issue_description = 'Issue description is required';
+      }
     }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -42,6 +63,7 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
     e.preventDefault();
     if (!validate()) return;
 
+    setSubmitError(null);
     setIsSubmitting(true);
     try {
       let photoUrl = '';
@@ -62,17 +84,22 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
         created_by: user?.email || 'system',
       };
 
-      if (eventType === 'check_out') {
+      if (isCheckOut) {
         movementData.expected_return_date = form.expected_return_date || null;
         if (photoUrl) movementData.pickup_photo_url = photoUrl;
       } else {
         if (photoUrl) movementData.return_photo_url = photoUrl;
+
+        movementData.return_condition = form.return_condition || null;
+        movementData.has_new_issues = form.has_new_issues === 'yes';
+        movementData.issue_description = form.has_new_issues === 'yes' ? (form.issue_description || null) : null;
+
+        movementData.requires_service = form.service_repair === 'service';
+        movementData.requires_repair = form.service_repair === 'repair';
       }
 
       const success = await createMovement(movementData);
-      if (success) {
-        onSuccess();
-      }
+      if (success) { onSuccess(); onClose(); } else { setSubmitError(null); }
     } catch (err) {
       console.error('Movement error:', err);
     } finally {
@@ -80,7 +107,9 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
     }
   };
 
-  const isCheckOut = eventType === 'check_out';
+  const photoLabel = isCheckOut
+    ? 'Pickup Photo'
+    : (form.has_new_issues === 'yes' ? 'Issue Photo' : 'Return Photo');
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -103,6 +132,11 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {(submitError || equipmentError) && (
+            <div className="p-3 rounded-lg border border-destructive/30 bg-destructive/10 text-sm text-destructive">
+              {equipmentError || submitError}
+            </div>
+          )}
           {isCheckOut && (
             <>
               <div>
@@ -160,6 +194,96 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
             </>
           )}
 
+          {!isCheckOut && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-foreground/90 mb-1">
+                  Return Condition <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={form.return_condition}
+                  onChange={e => setForm(f => ({ ...f, return_condition: e.target.value as any }))}
+                  className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                    errors.return_condition ? 'border-red-500/40 bg-red-500/10' : 'border-border/70'
+                  }`}
+                >
+                  <option value="">Select condition...</option>
+                  {CONDITIONS.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                {errors.return_condition && <p className="text-xs text-red-500 mt-1">{errors.return_condition}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground/90 mb-1">
+                  Any new issues or damage? <span className="text-red-500">*</span>
+                </label>
+                <div className={`flex items-center gap-2`}>
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, has_new_issues: 'no', issue_description: '' }))}
+                    className={`px-3 py-2 rounded-lg text-sm border transition-colors ${
+                      form.has_new_issues === 'no'
+                        ? 'border-border/70 bg-background/40'
+                        : 'border-border/70 hover:bg-background/40'
+                    }`}
+                  >
+                    No
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, has_new_issues: 'yes' }))}
+                    className={`px-3 py-2 rounded-lg text-sm border transition-colors ${
+                      form.has_new_issues === 'yes'
+                        ? 'border-border/70 bg-background/40'
+                        : 'border-border/70 hover:bg-background/40'
+                    }`}
+                  >
+                    Yes
+                  </button>
+                </div>
+                {errors.has_new_issues && <p className="text-xs text-red-500 mt-1">{errors.has_new_issues}</p>}
+              </div>
+
+              {form.has_new_issues === 'yes' && (
+                <div>
+                  <label className="block text-sm font-medium text-foreground/90 mb-1">
+                    Issue Description <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={form.issue_description}
+                    onChange={e => setForm(f => ({ ...f, issue_description: e.target.value }))}
+                    rows={3}
+                    placeholder="Describe the issue/damage..."
+                    className={`w-full px-3 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 resize-none ${
+                      errors.issue_description ? 'border-red-500/40 bg-red-500/10' : 'border-border/70'
+                    }`}
+                  />
+                  {errors.issue_description && <p className="text-xs text-red-500 mt-1">{errors.issue_description}</p>}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-foreground/90 mb-1">
+                  Service / Repair Required
+                </label>
+                <select
+                  value={form.service_repair}
+                  onChange={e => setForm(f => ({ ...f, service_repair: e.target.value as ServiceRepairChoice }))}
+                  className="w-full px-3 py-2.5 border border-border/70 rounded-lg text-sm focus:outline-none focus:ring-2"
+                >
+                  <option value="none">None</option>
+                  <option value="service">Routine service required</option>
+                  <option value="repair">Repair required</option>
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Selecting “Repair required” will flag the equipment for Repair status (next step).
+                </p>
+              </div>
+            </>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-foreground/90 mb-1">Notes</label>
             <textarea
@@ -174,11 +298,13 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
           {/* Photo Upload */}
           <div>
             <label className="block text-sm font-medium text-foreground/90 mb-1">
-              {isCheckOut ? 'Pickup Photo' : 'Return Photo'}
+              {photoLabel} 
             </label>
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-border/70 rounded-lg p-4 text-center cursor-pointer hover:border-white/20 transition-colors"
+              className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
+                errors.return_photo ? 'border-red-500/40 bg-red-500/10' : 'border-border/70 hover:border-white/20'
+              }`}
             >
               {photoFile ? (
                 <div className="flex items-center justify-center gap-2">
@@ -206,6 +332,7 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
                 </>
               )}
             </div>
+            {errors.return_photo && <p className="text-xs text-red-500 mt-1">{errors.return_photo}</p>}
             <input
               ref={fileInputRef}
               type="file"
@@ -251,5 +378,10 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
     </div>
   );
 }
+
+
+
+
+
 
 

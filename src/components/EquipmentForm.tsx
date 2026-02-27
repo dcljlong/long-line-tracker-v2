@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 import type { Equipment, EquipmentCondition } from '@/types';
 import { CATEGORIES } from '@/types';
@@ -10,7 +10,7 @@ interface EquipmentFormProps {
   onSuccess: () => void;
 }
 
-const CONDITIONS: EquipmentCondition[] = ['New', 'Good', 'Fair', 'Poor', 'Damaged'];
+const CONDITIONS: EquipmentCondition[] = ['New', 'Good', 'Fair', 'Poor', 'Damaged', 'Not Working'];
 
 export default function EquipmentForm({ equipment, onClose, onSuccess }: EquipmentFormProps) {
   const { createEquipment, updateEquipment, error: equipmentError } = useEquipment();
@@ -281,6 +281,7 @@ export default function EquipmentForm({ equipment, onClose, onSuccess }: Equipme
     </div>
   );
 }
+
 
 
 

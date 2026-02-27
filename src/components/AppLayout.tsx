@@ -176,15 +176,15 @@ function AppContent() {
         )}
 
         {movementType && selectedEquipment && (
-          <MovementForm
-            type={movementType}
-            equipment={selectedEquipment}
-            onClose={() => setMovementType(null)}
-            onSuccess={handleMovementSuccess}
-          />
-        )}
-
-        {showImportModal && (
+  <MovementForm
+    equipmentId={selectedEquipment.id}
+    equipmentName={selectedEquipment.name}
+    eventType={movementType}
+    onClose={() => setMovementType(null)}
+    onSuccess={handleMovementSuccess}
+  />
+)}
+{showImportModal && (
           <ImportModal
             onClose={() => setShowImportModal(false)}
             onSuccess={handleImportSuccess}
@@ -212,6 +212,10 @@ export default function AppLayout() {
     </AuthProvider>
   );
 }
+
+
+
+
 
 
 

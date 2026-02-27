@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import type { EquipmentStatus, TagState, CanonicalEquipmentStatus } from '@/types';
-import { getTagStateColor, normalizeEquipmentStatus } from '@/types';
+import { normalizeEquipmentStatus } from '@/types';
 import { getStatusConfig } from '@/lib/status-config';
 
 export function StatusBadge({ status }: { status: EquipmentStatus }) {
@@ -25,9 +25,19 @@ export function StatusBadge({ status }: { status: EquipmentStatus }) {
 }
 
 export function TagBadge({ state }: { state: TagState }) {
-  const colors = getTagStateColor(state);
+  const base = 'inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border';
+
+  const map: Record<TagState, { bg: string; text: string; border: string }> = {
+    'OK':       { bg: 'llt-badge-bg-success', text: 'llt-text-success',  border: 'llt-border-success' },
+    'Due Soon': { bg: 'llt-badge-bg-warning', text: 'llt-text-warning',  border: 'llt-border-warning' },
+    'Expired':  { bg: 'llt-badge-bg-danger',  text: 'llt-text-danger',   border: 'llt-border-danger' },
+    'No Tag':   { bg: 'llt-badge-bg-neutral', text: 'text-muted-foreground', border: 'border-border/60' },
+  };
+
+  const cls = map[state];
+
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${colors.bg} ${colors.text} ${colors.border}`}>
+    <span className={`${base} ${cls.bg} ${cls.text} ${cls.border}`}>
       {state === 'OK' && (
         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -54,7 +64,8 @@ export function ConditionBadge({ condition }: { condition: string }) {
     'Good': 'bg-green-50 text-green-700',
     'Fair': 'bg-yellow-50 text-yellow-700',
     'Poor': 'bg-orange-50 text-orange-700',
-    'Damaged': 'bg-red-50 text-red-700',
+    'Damaged': 'llt-badge-bg-danger llt-text-danger llt-border-danger',
+    'Not Working': 'bg-slate-900/40 text-slate-100',
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorMap[condition] || 'bg-slate-900/40 text-slate-300'}`}>
@@ -62,3 +73,8 @@ export function ConditionBadge({ condition }: { condition: string }) {
     </span>
   );
 }
+
+
+
+
+

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useEquipment } from '@/context/EquipmentContext';
 import { computeTagState, computeStatus } from '@/types';
 import { UI } from '@/lib/ui';
@@ -14,11 +14,16 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     return <div className="text-muted-foreground">Loading...</div>;
   }
 
+  // "Maintenance" is represented by canonical status "Repair" in the UI layer (Maintenance is a legacy alias).
+  const maintenanceCount = (stats as any).repair ?? 0;
+  const maintenanceItems = equipment.filter(eq => computeStatus(eq) === 'Repair').slice(0, 6);
+
   const kpiCards = [
     { label: 'Total Equipment', value: stats.total, filter: 'All', kind: 'info' },
     { label: 'Available', value: stats.available, filter: 'Available', kind: 'info' },
     { label: 'In Use', value: stats.inUse, filter: 'In Use', kind: 'info' },
     { label: 'Overdue', value: stats.overdue, filter: 'Overdue', kind: 'danger' },
+    { label: 'Maintenance', value: maintenanceCount, filter: 'Repair', kind: 'warning' },
     { label: 'Expired Tags', value: stats.expiredTags, filter: 'Expired Tags', kind: 'danger' },
     { label: 'Due Soon', value: stats.dueSoon, filter: 'Due Soon', kind: 'warning' },
   ];
@@ -44,6 +49,44 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
       {/* SECOND ROW */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+        {/* MAINTENANCE QUEUE */}
+        <div className={`${UI.card}`}>
+          <div className={`px-5 py-4 border-b ${UI.divider} flex items-center justify-between`}>
+            <h3 className="font-semibold text-white">Maintenance Queue</h3>
+            <button
+              onClick={() => onNavigate('equipment', 'Repair')}
+              className="text-xs text-muted-foreground hover:text-foreground/90 transition-colors"
+            >
+              View all
+            </button>
+          </div>
+
+          <div className="divide-y divide-slate-700/40">
+            {maintenanceItems.length === 0 ? (
+              <div className="llt-pad-md llt-body-sm text-muted-foreground/70 text-center">
+                No items in maintenance
+              </div>
+            ) : (
+              maintenanceItems.map(eq => (
+                <button
+                  key={eq.id}
+                  onClick={() => onNavigate('equipment', 'Repair')}
+                  className="w-full text-left px-5 py-3 hover:bg-background/30 transition-colors"
+                  title="Open Maintenance list"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="llt-body-sm text-foreground/90 truncate">{eq.name}</p>
+                      <p className="llt-caption text-muted-foreground/70 font-mono">{eq.asset_id}</p>
+                    </div>
+                    <span className="llt-caption llt-warning-text whitespace-nowrap">MAINT</span>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
 
         {/* RECENT ACTIVITY */}
         <div className={`xl:col-span-2 ${UI.card}`}>
@@ -106,6 +149,5 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     </div>
   );
 }
-
 
 
