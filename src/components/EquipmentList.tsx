@@ -18,11 +18,11 @@ const FILTER_TABS: FilterTab[] = ['All', 'Available', 'In Use', 'Overdue', 'Repa
 
 
 function filterTabLabel(t: FilterTab): string {
-  return t === 'Repair' ? 'Maintenance' : t;
+  return t === 'Repair' ? 'Action Required' : t;
 }
 
 export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport, initialFilter }: EquipmentListProps) {
-  const { filteredEquipment, searchQuery, setSearchQuery, activeFilter, setActiveFilter, stats, isLoading } = useEquipment();
+  const { filteredEquipment, searchQuery, setSearchQuery, activeFilter, setActiveFilter, stats, isLoading, movements } = useEquipment();
   const { isAdmin } = useAuth();
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
@@ -140,7 +140,47 @@ export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport
         </div>
       </div>
 
-      {/* Content */}
+      {/* Action Required Summary */}
+{activeFilter === 'Repair' && (
+  <div className={`${UI.card} ${UI.cardPad} mt-4`}>
+    <div className="flex items-center justify-between">
+      <h3 className="font-semibold text-white">Action Required</h3>
+      <span className="text-xs text-muted-foreground">
+        Showing {filteredEquipment.length} items
+      </span>
+    </div>
+
+    <div className="mt-3 divide-y divide-slate-700/40">
+      {filteredEquipment.slice(0, 6).map(eq => {
+        const lastReturn = movements.filter(m => m.equipment_id === eq.id && m.event_type === 'return').sort((a,b) => new Date(b.event_timestamp).getTime() - new Date(a.event_timestamp).getTime())[0];
+        if (!lastReturn) return null;
+        return (
+          <div key={eq.id} className="py-2 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm text-foreground/90 truncate">{eq.name}</p>
+              <p className="text-xs text-muted-foreground">
+                Returned by <span className="text-foreground/85 font-medium">{lastReturn.assigned_to || '-'}</span>
+                {lastReturn.event_timestamp ? ` • ${new Date(lastReturn.event_timestamp).toLocaleDateString('en-AU')}` : ''}
+              </p>
+              {(lastReturn.issue_description || lastReturn.notes) && (
+                <p className="text-xs text-muted-foreground/80 line-clamp-2 mt-1">
+                  {lastReturn.issue_description || lastReturn.notes}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => onSelectEquipment(eq.id)}
+              className="text-xs text-muted-foreground hover:text-foreground/90 transition-colors whitespace-nowrap"
+            >
+              Open
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
+{/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -163,7 +203,13 @@ export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredEquipment.map(eq => (
-              <EquipmentCard key={eq.id} equipment={eq} onClick={() => onSelectEquipment(eq.id)} isAdmin={isAdmin} />
+              <EquipmentCard
+  key={eq.id}
+  equipment={eq}
+  onClick={() => onSelectEquipment(eq.id)}
+  isAdmin={isAdmin}
+  lastReturn={movements.find(m => m.equipment_id === eq.id && m.event_type === 'return')}
+ />
             ))}
           </div>
         ) : (
@@ -181,7 +227,7 @@ export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport
   );
 }
 
-function EquipmentCard({ equipment: eq, onClick, isAdmin }: { equipment: Equipment; onClick: () => void; isAdmin: boolean }) {
+function EquipmentCard({ equipment: eq, onClick, isAdmin, lastReturn }: { equipment: Equipment; onClick: () => void; isAdmin: boolean; lastReturn?: any }) {
   const status = computeStatus(eq);
   const tagState = computeTagState(eq);
 
@@ -220,6 +266,21 @@ function EquipmentCard({ equipment: eq, onClick, isAdmin }: { equipment: Equipme
           <StatusBadge status={status} />
           <TagBadge state={tagState} />
         </div>
+
+        {status === 'Repair' && lastReturn && (
+          <div className="mt-3 pt-3 border-t border-border/70 space-y-1">
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <span className="text-muted-foreground">Returned by</span>
+              <span className="text-foreground/85 font-medium truncate">{lastReturn.assigned_to || '-'}</span>
+            </div>
+
+            {(lastReturn.issue_description || lastReturn.notes) && (
+              <p className="text-xs text-muted-foreground/80 line-clamp-2">
+                {lastReturn.issue_description || lastReturn.notes}
+              </p>
+            )}
+          </div>
+        )}
 
         {eq.test_tag_next_due && (
           <p className="text-xs text-muted-foreground mb-2">
@@ -312,6 +373,20 @@ function EquipmentTable({ equipment, onSelect, isAdmin }: { equipment: Equipment
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
