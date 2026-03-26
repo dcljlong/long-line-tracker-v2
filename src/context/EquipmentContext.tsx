@@ -1,5 +1,6 @@
-﻿import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import type { Equipment, Movement, FilterTab, DashboardStats } from '@/types';
 import { computeTagState, computeStatus } from '@/types';
 
@@ -51,6 +52,7 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterTab>('All');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -172,7 +174,7 @@ case 'Maintenance':
     try {
       const { data: result, error } = await supabase
         .from('equipment')
-        .insert(data)
+        .insert({ ...data, user_id: user?.user_id })
         .select()
         .single();
       if (error) throw error;
@@ -202,7 +204,7 @@ case 'Maintenance':
 
   const createMovement = useCallback(async (data: Partial<Movement>): Promise<boolean> => {
     try {
-      const { error: mvError } = await supabase.from('movements').insert(data);
+      const { error: mvError } = await supabase.from('movements').insert({ ...data, user_id: user?.user_id });
       if (mvError) throw mvError;
 
       // Update equipment status based on movement type
@@ -275,6 +277,12 @@ export function useEquipment() {
   if (!ctx) throw new Error('useEquipment must be used within EquipmentProvider');
   return ctx;
 }
+
+
+
+
+
+
 
 
 
