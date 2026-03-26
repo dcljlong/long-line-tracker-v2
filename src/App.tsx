@@ -34,7 +34,7 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/settings" element={<Index />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
