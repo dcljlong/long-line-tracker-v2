@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 export default function Header({ onOpenAuth, currentView, onScanResult, onToggleSidebar }: HeaderProps) {
-  const { user, isAdmin, setDemoRole, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const viewTitles: Record<string, string> = {
@@ -55,27 +55,7 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
             Scan QR
           </button>
 
-          {/* Role Toggle (demo) */}
-          <div className="hidden md:flex items-center rounded-lg p-0.5 border border-input bg-card/60">
-            <button
-              type="button"
-              onClick={() => setDemoRole("admin")}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-                isAdmin ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => setDemoRole("standard")}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-                !isAdmin ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Standard
-            </button>
-          </div>
+          
 
           {/* User */}
           <div className="relative">
@@ -126,5 +106,6 @@ export default function Header({ onOpenAuth, currentView, onScanResult, onToggle
     </header>
   );
 }
+
 
 

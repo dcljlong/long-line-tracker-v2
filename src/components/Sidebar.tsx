@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { useEquipment } from "@/context/EquipmentContext";
 import { UI } from "@/lib/ui";
 
@@ -15,60 +15,41 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
   const logoSrc = `${import.meta.env.BASE_URL}LLT-developer-logo.png`;
 
   const navItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
-          />
-        </svg>
-      ),
-    },
-    {
-      id: "equipment",
-      label: "Equipment",
-      badge: stats.total,
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M11.42 15.17l-5.384-3.19A2.625 2.625 0 015.25 9.75V6.375a2.625 2.625 0 012.786-2.619l5.384.319M11.42 15.17l5.384 3.19A2.625 2.625 0 0017.25 16.5V6.375a2.625 2.625 0 00-2.786-2.619l-5.384.319M11.42 15.17V20.25"
-          />
-        </svg>
-      ),
-    },
-  ,
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M11.983 5.25c.425-1.06 1.608-1.06 2.033 0l.314.783a1.125 1.125 0 001.1.72h.823c1.14 0 1.616 1.454.708 2.121l-.666.49a1.125 1.125 0 00-.41 1.257l.254.83c.338 1.104-.9 2.02-1.847 1.364l-.686-.5a1.125 1.125 0 00-1.32 0l-.686.5c-.947.656-2.185-.26-1.847-1.364l.254-.83a1.125 1.125 0 00-.41-1.257l-.666-.49c-.908-.667-.432-2.12.708-2.12h.823a1.125 1.125 0 001.1-.72l.314-.784z" />
-        </svg>
-      ),
-    }
-  ];
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+      </svg>
+    ),
+  },
+  {
+    id: "equipment",
+    label: "Equipment",
+    badge: stats.total,
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.384-3.19A2.625 2.625 0 015.25 9.75V6.375a2.625 2.625 0 012.786-2.619l5.384.319M11.42 15.17l5.384 3.19A2.625 2.625 0 0017.25 16.5V6.375a2.625 2.625 0 00-2.786-2.619l-5.384.319M11.42 15.17V20.25" />
+      </svg>
+    ),
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11.983 5.25c.425-1.06 1.608-1.06 2.033 0l.314.783a1.125 1.125 0 001.1.72h.823c1.14 0 1.616 1.454.708 2.121l-.666.49a1.125 1.125 0 00-.41 1.257l.254.83c.338 1.104-.9 2.02-1.847 1.364l-.686-.5a1.125 1.125 0 00-1.32 0l-.686.5c-.947.656-2.185-.26-1.847-1.364l.254-.83a1.125 1.125 0 00-.41-1.257l-.666-.49c-.908-.667-.432-2.12.708-2.12h.823a1.125 1.125 0 001.1-.720l.314-.784z" />
+      </svg>
+    ),
+  },
+];
 
   const alertItems = [
-    { label: "Overdue", count: stats.overdue, dot: "bg-destructive" },
-    { label: "Expired Tags", count: stats.expiredTags, dot: "bg-destructive" },
-    { label: "Due Soon", count: stats.dueSoon, dot: "bg-primary" },
-  ,
-    {
-      id: 'settings',
-      label: 'Settings',
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M11.983 5.25c.425-1.06 1.608-1.06 2.033 0l.314.783a1.125 1.125 0 001.1.72h.823c1.14 0 1.616 1.454.708 2.121l-.666.49a1.125 1.125 0 00-.41 1.257l.254.83c.338 1.104-.9 2.02-1.847 1.364l-.686-.5a1.125 1.125 0 00-1.32 0l-.686.5c-.947.656-2.185-.26-1.847-1.364l.254-.83a1.125 1.125 0 00-.41-1.257l-.666-.49c-.908-.667-.432-2.12.708-2.12h.823a1.125 1.125 0 001.1-.72l.314-.784z" />
-        </svg>
-      ),
-    }
-  ];
+  { label: "Overdue", count: stats.overdue, dot: "bg-destructive" },
+  { label: "Expired Tags", count: stats.expiredTags, dot: "bg-destructive" },
+  { label: "Due Soon", count: stats.dueSoon, dot: "bg-primary" },
+];
 
   const isActive = (id: string) => currentView === id || (id === "equipment" && currentView === "detail");
 
@@ -161,5 +142,6 @@ export default function Sidebar({ currentView, onNavigate, collapsed, onToggle }
     </aside>
   );
 }
+
 
 
