@@ -20,19 +20,19 @@ export const StatusConfig: Record<CanonicalEquipmentStatus, {
   },
   "Overdue": {
     label: "OVERDUE",
-    barClass: "llt-card-statusbar--repair",
+    barClass: "llt-card-statusbar--warning",
     badgeClass: "llt-badge-error",
     textClass: "llt-error-text"
   },
   "Expired": {
     label: "EXPIRED",
-    barClass: "llt-card-statusbar--repair",
+    barClass: "llt-card-statusbar--warning",
     badgeClass: "llt-badge-error",
     textClass: "llt-error-text"
   },
   "Repair": {
-    label: "REPAIR",
-    barClass: "llt-card-statusbar--repair",
+    label: "ACTION REQUIRED",
+    barClass: "llt-card-statusbar--warning",
     badgeClass: "llt-badge-warning",
     textClass: "llt-warning-text"
   }
@@ -41,3 +41,7 @@ export const StatusConfig: Record<CanonicalEquipmentStatus, {
 export function getStatusConfig(status: CanonicalEquipmentStatus) {
   return StatusConfig[status];
 }
+
+
+
+

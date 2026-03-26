@@ -20,10 +20,10 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
   const kpiCards = [
     { label: 'Total Equipment', value: stats.total, filter: 'All', kind: 'info' },
-    { label: 'Available', value: stats.available, filter: 'Available', kind: 'info' },
+    { label: 'Available', value: stats.available, filter: 'Available', kind: 'success' },
     { label: 'In Use', value: stats.inUse, filter: 'In Use', kind: 'info' },
     { label: 'Overdue', value: stats.overdue, filter: 'Overdue', kind: 'danger' },
-    { label: 'Maintenance', value: maintenanceCount, filter: 'Repair', kind: 'warning' },
+    { label: 'Action Required', value: maintenanceCount, filter: 'Repair', kind: 'warning' },
     { label: 'Expired Tags', value: stats.expiredTags, filter: 'Expired Tags', kind: 'danger' },
     { label: 'Due Soon', value: stats.dueSoon, filter: 'Due Soon', kind: 'warning' },
   ];
@@ -53,7 +53,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         {/* MAINTENANCE QUEUE */}
         <div className={`${UI.card}`}>
           <div className={`px-5 py-4 border-b ${UI.divider} flex items-center justify-between`}>
-            <h3 className="font-semibold text-white">Maintenance Queue</h3>
+            <h3 className="font-semibold text-white">Action Required Queue</h3>
             <button
               onClick={() => onNavigate('equipment', 'Repair')}
               className="text-xs text-muted-foreground hover:text-foreground/90 transition-colors"
@@ -65,7 +65,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           <div className="divide-y divide-slate-700/40">
             {maintenanceItems.length === 0 ? (
               <div className="llt-pad-md llt-body-sm text-muted-foreground/70 text-center">
-                No items in maintenance
+                No items require action
               </div>
             ) : (
               maintenanceItems.map(eq => (
@@ -149,5 +149,11 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
     </div>
   );
 }
+
+
+
+
+
+
 
 

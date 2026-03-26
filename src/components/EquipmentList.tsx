@@ -154,8 +154,7 @@ export default function EquipmentList({ onSelectEquipment, onCreateNew, onImport
       {filteredEquipment.slice(0, 6).map(eq => {
         const lastReturn = movements.filter(m => m.equipment_id === eq.id && m.event_type === 'return').sort((a,b) => new Date(b.event_timestamp).getTime() - new Date(a.event_timestamp).getTime())[0];
         if (!lastReturn) return null;
-        return (
-          <div key={eq.id} className="py-2 flex items-start justify-between gap-3">
+        return (<>{p className="text-xs text-muted-foreground/80 mt-1">{lastReturn.issue_description || lastReturn.notes}</p><div key={eq.id} className="py-2 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm text-foreground/90 truncate">{eq.name}</p>
               <p className="text-xs text-muted-foreground">
@@ -373,6 +372,12 @@ function EquipmentTable({ equipment, onSelect, isAdmin }: { equipment: Equipment
     </div>
   );
 }
+
+
+
+
+
+
 
 
 

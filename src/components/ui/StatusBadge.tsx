@@ -15,11 +15,11 @@ export function StatusBadge({ status }: { status: EquipmentStatus }) {
         cfg.badgeClass,
         cfg.textClass,
       ].join(' ')}
-      aria-label={`Status: ${cfg.label}`}
-      title={cfg.label}
+      aria-label={`Status: ${cfg.label.replace("MAINT", "ACTION REQUIRED")}`}
+      title={cfg.label.replace("MAINT", "ACTION REQUIRED")}
     >
       <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
-      {cfg.label}
+      {cfg.label.replace("MAINT", "ACTION REQUIRED")}
     </span>
   );
 }
@@ -73,6 +73,7 @@ export function ConditionBadge({ condition }: { condition: string }) {
     </span>
   );
 }
+
 
 
 
