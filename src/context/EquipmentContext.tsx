@@ -103,11 +103,10 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    setEquipment([]);
-    setMovements([]);
-    setIsLoading(false);
-    return;
-  }
+  // Do not clear data during auth transition
+  setIsLoading(false);
+  return;
+}
 
   fetchData();
 }, [authLoading, isAuthenticated, fetchData]);
@@ -289,6 +288,7 @@ export function useEquipment() {
   if (!ctx) throw new Error('useEquipment must be used within EquipmentProvider');
   return ctx;
 }
+
 
 
 
