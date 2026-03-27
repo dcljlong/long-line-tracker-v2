@@ -52,7 +52,7 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterTab>('All');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -97,8 +97,20 @@ export function EquipmentProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  if (authLoading) {
+    setIsLoading(true);
+    return;
+  }
+
+  if (!isAuthenticated) {
+    setEquipment([]);
+    setMovements([]);
+    setIsLoading(false);
+    return;
+  }
+
+  fetchData();
+}, [authLoading, isAuthenticated, fetchData]);
 
   const stats = useMemo<DashboardStats>(() => {
     const s: DashboardStats = { total: 0, available: 0, inUse: 0, overdue: 0, repair: 0, expiredTags: 0, dueSoon: 0 };
@@ -277,6 +289,7 @@ export function useEquipment() {
   if (!ctx) throw new Error('useEquipment must be used within EquipmentProvider');
   return ctx;
 }
+
 
 
 
