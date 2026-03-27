@@ -99,6 +99,7 @@ export default function MovementForm({ equipmentId, equipmentName, eventType, on
         movementData.expected_return_date = form.expected_return_date || null;
         if (photoUrl) movementData.pickup_photo_url = photoUrl;
       } else {
+      } else {
         if (photoUrl) movementData.return_photo_url = photoUrl;
 
         movementData.return_condition = form.return_condition || null;
